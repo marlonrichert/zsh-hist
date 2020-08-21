@@ -1,0 +1,113 @@
+emulate -LR zsh -o noshortloops -o warncreateglobal -o extendedglob
+zmodload -i zsh/zutil
+autoload -Uz .hist.help
+
+typeset -gHA _HIST__OPTS=(
+  -i 'interactive: ask for confirmation'
+  -s 'silent:      do not print anything'
+  -v 'verbose:     print all the things'
+)
+typeset -gHA _HIST__ARGS=(
+  d  'delete: remove from history'
+  e  'edit:   remove from history, modify & append as new'
+  f  'fix:    remove from history & load into buffer'
+  l  'list:   look, but do not touch'
+  r  'reload: re-initialize entire history from file'
+  u  'undo:   roll back to before last change'
+)
+
+hist() {
+  emulate -LR zsh -o noshortloops -o warncreateglobal -o extendedglob
+
+  local -A lines=() opts=() args=()
+  local HISTORY_IGNORE
+
+  local arg; for arg in 'action' 'key'; do
+    zparseopts -D -A opts i s v
+    (( # > 0 )) && args[$arg]=$1 && shift
+  done
+  zparseopts -D -A opts i s v
+
+  if [[ $args[action] != [deflru] && ! -v opts[-s] ]]; then
+    .hist.help
+    return 1
+  fi
+
+  case $args[action] in
+    r)
+      [[ -v opts[-i] ]] && print -n "Replace local history with contents of $HISTFILE? "
+      local REPLY
+      if [[ ! -v opts[-i] ]] || read -q '?[y/n] '; then
+        builtin fc -p $HISTFILE $HISTSIZE $SAVEHIST
+      fi
+      return
+      ;;
+    u)
+      [[ -v opts[-i] ]] && print -n "Discard last change & all events since then? "
+      ;;
+  esac
+
+  [[ -z $args[key] ]] && args[key]=-1
+
+  local nopt='' && [[ -v opts[-v] ]] || nopt='n'
+  if [[ -v history[${(b)args[key]}] ]]; then
+    lines[$args[key]]=$history[$args[key]]
+    HISTORY_IGNORE=${(b)history[$args[key]]}
+    [[ -v opts[-s] ]] || fc -l$nopt $args[key] $args[key]
+  elif fc -ln $args[key] $args[key] &> /dev/null; then
+    local line=$(fc -ln $args[key] $args[key])
+    local tmp=$(fc -l $args[key] $args[key])
+    local -i number=${tmp%%$line}
+    lines[$number]=$line
+    HISTORY_IGNORE=${(b)history[$number]}
+
+    local out=$tmp && [[ -v opts[-v] ]] || out=$line
+    [[ -v opts[-s] ]] || print $line
+  elif [[ -n ${(@kv)history[(r)$args[key]]} ]]; then
+    lines=( "${(@kv)history[(R)$args[key]]}" )
+    HISTORY_IGNORE=$args[key]
+    [[ -v opts[-s] ]] || fc -l${nopt}m $args[key] 1 -1
+  fi
+
+  if (( $#lines == 0 )); then
+    [[ -v opts[-v] ]] && print "No matching history entries found."
+    return 1
+  fi
+
+  if [[ $args[action] != s ]]; then
+    [[ -v opts[-i] ]] && print -n "Delete the ${#lines} entries above from history? "
+    local REPLY
+    if [[ ! -v opts[-i] ]] || read -q '?[y/n] '; then
+      builtin fc -W
+      builtin fc -p $HISTFILE $HISTSIZE $SAVEHIST
+      [[ -v opts[-v] ]] && print -l && print "${#lines} entries deleted."
+    else
+      [[ -v opts[-v] ]] && print -l && print '0 entries deleted.'
+      return 1
+    fi
+  fi
+
+  case $args[action] in
+    e)
+      local file=$(mktemp)
+      print -l ${(v)lines} > $file
+      if [[ -v opts[-v] ]]; then
+        print 'Press ^X^W to save and exit.'
+        print --
+      fi
+
+      setopt NO_warncreateglobal
+      autoload -Uz zed && zed $file
+      setopt warncreateglobal
+
+      print -s $(< $file)
+      builtin fc -W
+      [[ -v opts[-v] ]] && print -l && print "${#lines} entries replaced."
+      ;;
+    f)
+      print -z ${(v)lines}
+      ;;
+  esac
+}
+
+hist "$@"

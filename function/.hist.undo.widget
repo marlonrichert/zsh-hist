@@ -1,0 +1,15 @@
+emulate -LR zsh -o noshortloops -o warncreateglobal -o extendedglob -o rcquotes
+
+.hist.undo.hook() {
+  emulate -LR zsh -o noshortloops -o warncreateglobal -o extendedglob
+
+  add-zsh-hook -d preexec .hist.undo.hook
+  hist d -1 -s
+}
+
+if ! zle .undo && [[ -z $BUFFER ]]; then
+  BUFFER=$(fc -ln -1)
+  CURSOR=$#BUFFER
+  UNDO_LIMIT_NO=$UNDO_CHANGE_NO
+  add-zsh-hook preexec .hist.undo.hook
+fi

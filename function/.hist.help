@@ -1,0 +1,24 @@
+emulate -LR zsh -o noshortloops -o warncreateglobal -o extendedglob -o rcquotes
+
+print 'Usage:'
+print '  hist [options] <action> [selection]'
+print -l
+print 'Options (can be combined):'
+print "  -i  ${_HIST__OPTS[-i]}"
+print "  -s  ${_HIST__OPTS[-s]}"
+print "  -v  ${_HIST__OPTS[-v]}"
+print -l
+print 'Actions (required; mutually exclusive):'
+print "  d  ${_HIST__ARGS[d]}"
+print "  e  ${_HIST__ARGS[e]}"
+print "  f  ${_HIST__ARGS[f]}"
+print "  l  ${_HIST__ARGS[l]}"
+print "  r  ${_HIST__ARGS[r]}"
+print "  u  ${_HIST__ARGS[u]}"
+print -l
+print 'Selection (required for some actions; mutually exclusive):'
+print '  empty             last event'
+print '  positive integer  index from beginning of history'
+print '  negative integer  offset from end of history'
+print '  simple string     prefix to match (selects one)'
+print '  glob expression   pattern to match (selects multiple)'
