@@ -22,11 +22,11 @@ Options (can be combined):
 
 Actions (required; mutually exclusive):
   d  delete: remove from history
-  e  edit:   remove from history, modify & append as new
-  f  fix:    remove from history & load into buffer
+  e  edit:   remove from history, then modify & append as new
+  f  fix:    remove from history, then load into buffer
   l  list:   look, but do not touch
   r  reload: re-initialize entire history from file
-  u  undo:   roll back to before last change
+  u  undo:   roll back to before last change in same session
 
 Selection (required for some actions; mutually exclusive):
   empty             last event
