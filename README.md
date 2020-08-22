@@ -7,8 +7,11 @@ On any new command line, you can now press `undo` to pop the last command from y
 history into the line editor, letting you correct any mistakes you made before running it back.
 Afterwards, the old command will no longer be found in your history.
 
-(Check with `bindkey` to see which keyboard shortcut is bound to `undo`. `zsh-hist` does not change
-that.)
+Note: `zsh-hist` does not change your key bindings. By default, Zsh binds [`undo` to `^_`, `^Xu`,
+and `^X^U` in emacs mode and to `u` in vi command mode](
+http://zsh.sourceforge.net/Doc/Release/Zsh-Line-Editor.html#index-undo). To define your own
+key binding, add a line like [`bindkey 'YOUR_KEY_CODE' undo`](
+http://zsh.sourceforge.net/Doc/Release/Zsh-Line-Editor.html#index-bindkey) to your `~/.zshrc` file.
 
 ## `hist` command syntax
 ```
