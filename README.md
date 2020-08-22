@@ -7,8 +7,9 @@ On any new command line, you can now press <kbd>Undo</kbd> to pop the last comma
 history into the line editor, letting you correct any mistakes you made before running it back.
 Afterwards, the old command will no longer be found.
 
-(Check with `bindkey` to see which keyboard shortcut is bound to `undo`. `zsh-hist` does not change
-that.)
+`zsh-hist` does not change keybindings. By default zsh binds `undo` to `^_`, `^Xu`, and `^X^U`
+in emacs mode and to `u` in vi command mode. For a custom keybinding, add a line like
+`bindkey 'YOUR_KEY_CODE' undo` to your `.zshrc`.
 
 ## Command line syntax
 ```sh
