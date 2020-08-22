@@ -4,7 +4,7 @@ emulate -LR zsh -o noshortloops -o warncreateglobal -o extendedglob -o rcquotes
   emulate -LR zsh -o noshortloops -o warncreateglobal -o extendedglob
 
   add-zsh-hook -d preexec .hist.undo.hook
-  hist -s d -1
+  hist -fs d -1
 }
 
 if ! zle .undo && [[ -z $BUFFER ]]; then
