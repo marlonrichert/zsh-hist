@@ -1,35 +1,34 @@
 # `zsh-hist`
 * Fix your previous command by [pressing <kbd>Undo</kbd>](#added-undo-functionality).
-* Edit your history with the [`hist` command](#command-line-syntax).
+* Edit your history with the [`hist` command](#hist-command-syntax).
 
-## Added Undo functionality
-On any new command line, you can now press <kbd>Undo</kbd> to pop the last command from your
+## Added `undo` functionality
+On any new command line, you can now press `undo` to pop the last command from your
 history into the line editor, letting you correct any mistakes you made before running it back.
-Afterwards, the old command will no longer be found.
+Afterwards, the old command will no longer be found in your history.
 
 (Check with `bindkey` to see which keyboard shortcut is bound to `undo`. `zsh-hist` does not change
 that.)
 
-## Command line syntax
-```sh
+## `hist` command syntax
+```
 Usage:
   hist [options] <action> [selection]
 
 Options (can be combined):
-  -i  interactive: ask for confirmation
-  -s  silent:      do not print anything
-  -v  verbose:     print all the things
+  -f  force:  do not ask for confirmation
+  -s  silent: do not print anything
 
 Actions (required; mutually exclusive):
   d  delete: remove from history
   e  edit:   remove from history, then modify & append as new
   f  fix:    remove from history, then load into buffer
   l  list:   look, but do not touch
-  r  reload: re-initialize entire history from file
+  r  reload: re-initialize local history from file
   u  undo:   roll back to before last change in same session
 
 Selection (required for some actions; mutually exclusive):
-  empty             last event
+  empty             most recent entry
   positive integer  index from beginning of history
   negative integer  offset from end of history
   simple string     prefix to match (selects one)

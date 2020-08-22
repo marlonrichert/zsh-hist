@@ -1,16 +1,16 @@
 #compdef hist
-local key value
+local key val
 
-[[ -z $_HIST__OPTS || -z $_HIST__ARGGS ]] && hist l -s
+[[ -z $_HIST__OPTS || -z $_HIST__ARGS ]] && hist -s l &> /dev/null
 
 local -a options=()
-for key value in ${(kv)_HIST__OPTS}; do
-  options+=( "${key}[$value]" )
+for key val in ${(kv)_HIST__OPTS}; do
+  options+=( "${key}[$val]" )
 done
 
 local -a actions=()
-for key value in ${(kv)_HIST__ARGS}; do
-  actions+=( "$key\:'$value'" )
+for key val in ${(kv)_HIST__ARGS}; do
+  actions+=( "$key\:'$val'" )
 done
 
-_arguments -s $options ":action:(($actions))" ':index, offset, prefix or pattern:'
+_arguments -s -A '' $options ":action:(($actions))" ':index, offset, prefix or pattern:'

@@ -3,56 +3,58 @@ zmodload -i zsh/zutil
 autoload -Uz .hist.help
 
 typeset -gHA _HIST__OPTS=(
-  -i 'interactive: ask for confirmation'
-  -s 'silent:      do not print anything'
-  -v 'verbose:     print all the things'
+  -f 'force:  do not ask for confirmation'
+  -s 'silent: do not print anything'
 )
 typeset -gHA _HIST__ARGS=(
   d  'delete: remove from history'
   e  'edit:   remove from history, then modify & append as new'
   f  'fix:    remove from history, then load into buffer'
   l  'list:   look, but do not touch'
-  r  'reload: re-initialize entire history from file'
+  r  'reload: re-initialize local history from file'
   u  'undo:   roll back to before last change in same session'
 )
+
+.hist.yes() {
+  [[ -v opts[-f] ]] && return 0
+
+  print -n "$1"
+  read -q '? [y/n] '
+  local ret=$?
+  print -l
+  return ret
+}
 
 hist() {
   emulate -LR zsh -o noshortloops -o warncreateglobal -o extendedglob
 
-  local -A lines=() opts=() args=()
+  local -A entries=() opts=()
   local HISTORY_IGNORE
+  local REPLY
 
-  local arg; for arg in 'action' 'key'; do
-    zparseopts -D -A opts i s v
-    (( # == 0 )) && break
-    args[$arg]=$1 && shift
-  done
+  zparseopts -D -A opts f i s v
+  local act=$1 sel=$2
 
-  if [[ $args[action] != [deflru] && ! -v opts[-s] ]]; then
+  if [[ $act != [${(j::k)_HIST__ARGS}] && ! -v opts[-s] ]]; then
     .hist.help
     return 1
   fi
 
-  case $args[action] in
+  case $act in
     r)
-      [[ -v opts[-i] ]] && print -n "Replace local history with contents of $HISTFILE? "
-      local REPLY
-      if [[ ! -v opts[-i] ]] || read -q '?[y/n] '; then
+      .hist.yes "Replace local history with contents of $HISTFILE?" &&
         builtin fc -p $HISTFILE $HISTSIZE $SAVEHIST
-      fi
       return
       ;;
     u)
-      [[ -v opts[-i] ]] && print -n "Revert last 'hist' action & all events since then? "
-      local REPLY
-      if [[ ! -v opts[-i] ]] || read -q '?[y/n] '; then
+      if .hist.yes "Revert last 'hist' action & all entries since then?"; then
         builtin fc -P
         local ret=$?
         if ! [[ -v opts[-s] ]]; then
           if (( ret == 0 )); then
             print 'Revert successful. Previous history restored.'
           else
-            print 'Unable to revert. No restore point available in this session.'
+            print 'Unable to revert. No restore points available in this session.'
           fi
         fi
         return ret
@@ -61,68 +63,80 @@ hist() {
       ;;
   esac
 
-  [[ -z $args[key] ]] && args[key]=-1
+  [[ -z $sel ]] && sel=-1
 
-  local nopt='' && [[ -v opts[-v] ]] || nopt='n'
-  if [[ -v history[${(b)args[key]}] ]]; then
-    lines[$args[key]]=$history[$args[key]]
-    HISTORY_IGNORE=${(b)history[$args[key]]}
+  if [[ -v history[${(b)sel}] ]]; then
+    entries[$sel]=$history[$sel]
+    HISTORY_IGNORE=${(b)history[$sel]}
 
-    [[ -v opts[-s] ]] || builtin fc -l$nopt $args[key] $args[key]
+    [[ -v opts[-s] ]] || builtin fc -l $sel $sel
 
-  elif builtin fc -ln $args[key] $args[key] &> /dev/null; then
-    local line=$(builtin fc -ln $args[key] $args[key])
-    local tmp=$(builtin fc -l $args[key] $args[key])
-    local -i number=${tmp%%$line}
-    lines[$number]=$line
+  elif [[ -n ${(@kv)history[(r)$sel]} ]]; then
+    entries=( "${(@kv)history[(R)$sel]}" )
+    HISTORY_IGNORE=$sel
+
+    [[ -v opts[-s] ]] || builtin fc -lm $sel 1 -1
+
+  elif builtin fc -ln $sel $sel &> /dev/null; then
+    local entry=$(builtin fc -ln $sel $sel)
+    local full=$(builtin fc -l $sel $sel)
+    local -i number=${full%%$entry}
+    entries[$number]=$entry
     HISTORY_IGNORE=${(b)history[$number]}
 
-    local out=$tmp && [[ -v opts[-v] ]] || out=$line
-    [[ -v opts[-s] ]] || print $line
-  elif [[ -n ${(@kv)history[(r)$args[key]]} ]]; then
-    lines=( "${(@kv)history[(R)$args[key]]}" )
-    HISTORY_IGNORE=$args[key]
+    [[ -v opts[-s] ]] || print $full
 
-    [[ -v opts[-s] ]] || builtin fc -l${nopt}m $args[key] 1 -1
   fi
 
-  if (( $#lines == 0 )); then
-    [[ -v opts[-v] ]] && print "No matching history entries found."
+  if (( $#entries == 0 )); then
+    [[ -v opts[-s] ]] || print "No matching history entries found."
     return 1
   fi
 
-  if [[ $args[action] != s ]]; then
-    [[ -v opts[-i] ]] && print -n "Delete the ${#lines} entries above from history? "
-    local REPLY
-    if [[ ! -v opts[-i] ]] || read -q '?[y/n] '; then
+  if [[ $act != [l] ]]; then
+    local msg
+    case $act in
+      e)
+        msg="Merge the ${#entries} entries above for editing?"
+        ;;
+      *)
+        msg="Delete the ${#entries} entries above from history?"
+        ;;
+    esac
+    if .hist.yes $msg; then
       builtin fc -W
       builtin fc -p $HISTFILE $HISTSIZE $SAVEHIST
-      [[ -v opts[-v] ]] && print -l && print "${#lines} entries deleted."
+      [[ -v opts[-s] ]] || print "${#entries} entries deleted."
     else
-      [[ -v opts[-v] ]] && print -l && print '0 entries deleted.'
+      [[ -v opts[-s] ]] || print '0 entries deleted.'
       return 1
     fi
   fi
 
-  case $args[action] in
+  case $act in
     e)
-      local file=$(mktemp)
-      print -l ${(v)lines} > $file
-      if [[ -v opts[-v] ]]; then
-        print 'Press ^X^W to save and exit.'
-        print --
+      autoload -Uz zed
+
+      bindkey -M zed &> /dev/null || zed -b
+      bindkey -M zed '^[^M' accept-line
+      if [[ ! -v opts[-s] ]]; then
+        print -l
+        print "Press Alt-Enter to save new entry and exit editor."
+        print -l
       fi
+      local file=$(mktemp)
+      print -l ${(v)entries} > $file
 
       setopt NO_warncreateglobal
-      autoload -Uz zed && zed $file
+      zed $file
       setopt warncreateglobal
 
       print -s $(< $file)
       builtin fc -W
-      [[ -v opts[-v] ]] && print -l && print "${#lines} entries replaced."
+      [[ -v opts[-s] ]] && print -l && print "New entry saved."
       ;;
     f)
-      print -z ${(v)lines}
+      print -z ${(v)entries}
       ;;
   esac
 }
