@@ -1,7 +1,7 @@
 #compdef hist
-local key val
+[[ -z $_HIST__OPTS || -z $_HIST__ARGS ]] && autoload -Uz hist && hist -fs l &> /dev/null
 
-[[ -z $_HIST__OPTS || -z $_HIST__ARGS ]] && hist -s l &> /dev/null
+local key val
 
 local -a options=()
 for key val in ${(kv)_HIST__OPTS}; do
@@ -13,4 +13,51 @@ for key val in ${(kv)_HIST__ARGS}; do
   actions+=( "$key\:'$val'" )
 done
 
-_arguments -s -A '' $options ":action:(($actions))" ':index, offset, prefix or pattern:'
+local context state state_descr line
+typeset -A opt_args
+_arguments -s -A '' $options ":action:(($actions))" ":index, offset or pattern:->selection"
+
+if [[ $state == 'selection' ]]; then
+  local -a displays=() matches=()
+  local -i len=$(( COLUMNS - 1 ))
+  case $words[CURRENT] in
+    (|-[[:digit:]]#))
+      local -a keys=( "${(@k)history}" )
+      local -a offsets=( {-1..-$#keys} )
+
+      matches=( "${(@)offsets[1,16]}" )
+      if [[ $words[CURRENT] != (|-) ]]; then
+        local -A map=( "${(@)offsets:^keys}" )
+        matches=( "${(@nO)map[(I)$words[CURRENT]*]}" )
+        if (( $#matches == 0 )); then
+          matches=( "${(@)offsets[1,16]}" )
+        elif (( $#matches > 16 )); then
+          matches=( "${(@)matches[-16,-1]}" )
+        fi
+      fi
+
+      local -i m; local d; for m in $matches; do
+        d="${(pl:$#SAVEHIST+1:)m} ${(pl:$#SAVEHIST:)keys[-m]}  ${(Z+C+)history[$keys[-m]]}"
+        displays+=( "${(pr:len:)d}" )
+      done
+      ;;
+    [[:digit:]]##)
+      matches=( "${(@kno)history[(I)$words[CURRENT]*]}" )
+
+      if (( $#matches == 0 )); then
+        matches=( "${(@k)history[1,16]}" )
+      elif (( $#matches > 16 )); then
+        matches=( "${(@)matches[1,16]}" )
+      fi
+
+      local -i m; local d; for m in $matches; do
+        d="${(pl:$#SAVEHIST:)m}  ${(Z+C+)history[$m]}"
+        displays+=( "${(pr:len:)d}" )
+      done
+      ;;
+  esac
+
+  local expl
+  _description hist-selection expl 'index, offset or pattern'
+  compadd "$expl[@]" -Q -ld displays -a matches
+fi
