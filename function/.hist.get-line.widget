@@ -1,0 +1,12 @@
+#!/bin/zsh
+emulate -LR zsh -o noshortloops -o warncreateglobal -o extendedglob -o rcquotes
+
+local suffix=' #:hist:push-line:'
+local -a tuple=( "${(@kv)history[(r)*$~suffix]}" )
+
+[[ -z $tuple ]] && return 1
+
+LBUFFER+=${${tuple[2]}%%$suffix}
+
+local reply
+hist -fs d $tuple[1]

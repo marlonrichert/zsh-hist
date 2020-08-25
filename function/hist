@@ -1,18 +1,21 @@
+#!/bin/zsh
 emulate -LR zsh -o noshortloops -o warncreateglobal -o extendedglob
-zmodload -i zsh/zutil
+zmodload -i zsh/parameter zsh/zutil
 autoload -Uz .hist.help
 
 typeset -gHA _HIST__OPTS=(
-  -f 'force:  do not ask for confirmation'
-  -s 'silent: do not print anything'
+  -f 'force:       never ask for confirmation'
+  -i 'interactive: always ask for confirmation'
+  -s 'silent:      do not print anything'
 )
 typeset -gHA _HIST__ARGS=(
   d  'delete: remove from history'
   e  'edit:   remove from history, then modify & append as new'
   f  'fix:    remove from history, then load into buffer'
+  g  'get:    load into buffer'
   l  'list:   look, but do not touch'
   r  'reload: re-initialize local history from file'
-  u  'undo:   roll back to before last change in same session'
+  u  'undo:   roll back to before last action in same session'
 )
 
 .hist.yes() {
@@ -28,8 +31,7 @@ typeset -gHA _HIST__ARGS=(
 hist() {
   emulate -LR zsh -o noshortloops -o warncreateglobal -o extendedglob
 
-  local -A entries=() opts=()
-  local HISTORY_IGNORE
+  local -A opts=()
   local REPLY
 
   zparseopts -D -A opts f i s v
@@ -50,12 +52,12 @@ hist() {
       if .hist.yes "Revert last 'hist' action & all entries since then?"; then
         builtin fc -P
         local ret=$?
-        if ! [[ -v opts[-s] ]]; then
-          if (( ret == 0 )); then
-            print 'Revert successful. Previous history restored.'
-          else
+        if (( ? == 0 )); then
+          builtin fc -W
+          [[ -v opts[-s] ]] || print 'Revert successful. Previous history restored.'
+        else
+          [[ -v opts[-s] ]] ||
             print 'Unable to revert. No restore points available in this session.'
-          fi
         fi
         return ret
       fi
@@ -63,50 +65,57 @@ hist() {
       ;;
   esac
 
-  [[ -z $sel ]] && sel=-1
+  local -A entries=()
+  local HISTORY_IGNORE
+  [[ -z $sel ]] && sel=0
+  case $sel in
+    0)
+      local suffix=' #:hist:push-line:'
+      HISTORY_IGNORE='*'$suffix
+      entries=( "${(@kv)history[(R)$~HISTORY_IGNORE]%$suffix}" )
+      ;;
+    [[:digit:]]##)
+      HISTORY_IGNORE=${(b)history[$sel]}
+      entries[$sel]=$history[$sel]
+      ;;
+    -[[:digit:]]##)
+      sel=${${(@k)history}[-sel]}
+      HISTORY_IGNORE=${(b)history[$sel]}
+      entries[$sel]=$history[$sel]
+      ;;
+    *)
+      HISTORY_IGNORE=$sel
+      entries=( "${(@kv)history[(R)$sel]}" )
+      ;;
+  esac
 
-  if [[ -v history[${(b)sel}] ]]; then
-    entries[$sel]=$history[$sel]
-    HISTORY_IGNORE=${(b)history[$sel]}
-
-    [[ -v opts[-s] ]] || builtin fc -l $sel $sel
-
-  elif [[ -n ${(@kv)history[(r)$sel]} ]]; then
-    entries=( "${(@kv)history[(R)$sel]}" )
-    HISTORY_IGNORE=$sel
-
-    [[ -v opts[-s] ]] || builtin fc -lm $sel 1 -1
-
-  elif builtin fc -ln $sel $sel &> /dev/null; then
-    local entry=$(builtin fc -ln $sel $sel)
-    local full=$(builtin fc -l $sel $sel)
-    local -i number=${full%%$entry}
-    entries[$number]=$entry
-    HISTORY_IGNORE=${(b)history[$number]}
-
-    [[ -v opts[-s] ]] || print $full
-
+  if ! [[ -v opts[-s] ]]; then
+    local key value
+    for key in ${(@kn)entries}; do
+      print "${(pl:$#SAVEHIST:)key}  ${(Z+C+)entries[$key]}"
+    done
   fi
 
   if (( $#entries == 0 )); then
-    [[ -v opts[-s] ]] || print "No matching history entries found."
+    if [[ ! -v opts[-s] ]]; then
+      local what='matching history entries'
+      [[ $sel == 0 ]] && what='pushed lines'
+      print "No $what found."
+    fi
     return 1
   fi
 
-  if [[ $act != [l] ]]; then
-    local msg
-    case $act in
-      e)
-        msg="Merge the ${#entries} entries above for editing?"
-        ;;
-      *)
-        msg="Delete the ${#entries} entries above from history?"
-        ;;
-    esac
-    if .hist.yes $msg; then
+  if [[ $act != [gl] ]]; then
+    local single_plural="${#entries} entries"
+    (( $#entries == 1 )) && single_plural='1 entry'
+
+    local msg="Delete the $single_plural above from history?"
+    [[ $act == e ]] && msg="Merge the $single_plural above for editing?"
+
+    if (( $#entries == 1 )) && [[ ! -v opts[-i] ]] || .hist.yes $msg; then
       builtin fc -W
       builtin fc -p $HISTFILE $HISTSIZE $SAVEHIST
-      [[ -v opts[-s] ]] || print "${#entries} entries deleted."
+      [[ $act != e ]] && [[ ! -v opts[-s] ]] && print "$single_plural deleted."
     else
       [[ -v opts[-s] ]] || print '0 entries deleted.'
       return 1
@@ -121,24 +130,39 @@ hist() {
       bindkey -M zed '^[^M' accept-line
       if [[ ! -v opts[-s] ]]; then
         print -l
-        print "Press Alt-Enter to save new entry and exit editor."
+        print "[Alt-Enter: Save]  [Ctrl-C: Cancel]"
         print -l
       fi
+
       local file=$(mktemp)
       print -l ${(v)entries} > $file
 
       setopt NO_warncreateglobal
-      zed $file
-      setopt warncreateglobal
-
-      print -s $(< $file)
-      builtin fc -W
-      [[ -v opts[-s] ]] && print -l && print "New entry saved."
+      {
+        zed $file
+      } always {
+        if (( TRY_BLOCK_INTERRUPT > 0 )); then
+          TRY_BLOCK_INTERRUPT=0
+          {
+            builtin fc -P
+          } always {
+            builtin fc -W
+            print "Deleted entries restored."
+          }
+        else
+          print -s $(< $file)
+          builtin fc -W
+          [[ -v opts[-s] ]] && print -l && print "New entry saved."
+        fi
+      }
       ;;
-    f)
-      print -z ${(v)entries}
+    [fg])
+      print -z ${(Fv)entries}
       ;;
   esac
+
+  setopt NO_warncreateglobal
+  reply=( "${(@kv)entries}" )
 }
 
 hist "$@"

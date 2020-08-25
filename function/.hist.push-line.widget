@@ -1,0 +1,13 @@
+#!/bin/zsh
+emulate -LR zsh -o noshortloops -o warncreateglobal -o extendedglob -o rcquotes
+
+if [[ $CONTEXT == cont ]]; then
+  zle .$WIDGET
+else
+  if [[ $BUFFER == [[:IFS:]]# ]]; then
+    BUFFER=''
+    return 1
+  fi
+  print -s "$BUFFER #:hist:push-line:"
+  BUFFER=''
+fi

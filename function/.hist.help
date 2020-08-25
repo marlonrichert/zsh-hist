@@ -1,22 +1,27 @@
+#!/bin/zsh
 emulate -LR zsh -o noshortloops -o warncreateglobal -o extendedglob -o rcquotes
 
 local key value
 
 print 'Usage:'
-print '  hist [options] <action> [selection]'
+print '  hist [options] <action> [selection]  ->  $reply'
+print -l
+print 'Return value:'
+print '  reply  an associative array of history (index, entry) tuples'
 print -l
 print 'Options (can be combined):'
 for key in ${(@ok)_HIST__OPTS}; do
-    print "  $key  ${_HIST__OPTS[$key]}"
+  print "  $key  ${_HIST__OPTS[$key]}"
 done
+print 'By default, hist asks for confirmation when operating on multiple history entries only.'
 print -l
 print 'Actions (required; mutually exclusive):'
 for key in ${(@ok)_HIST__ARGS}; do
-    print "  $key  ${_HIST__ARGS[$key]}"
+  print "  $key  ${_HIST__ARGS[$key]}"
 done
 print -l
 print 'Selection (required for some actions; mutually exclusive):'
-print '  empty             most recent entry'
+print '  empty or 0        pushed lines'
 print '  positive integer  index from beginning of history'
 print '  negative integer  offset from end of history'
 print '  string            pattern to match; can select multiple entries'
