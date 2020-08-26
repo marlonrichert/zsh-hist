@@ -18,11 +18,11 @@ typeset -A opt_args
 _arguments -s -A '' $options ":action:(($actions))" ":index, offset or pattern:->selection"
 
 if [[ $state == 'selection' ]]; then
+  local -a keys=( "${(@k)history}" )
   local -a displays=() matches=()
   local -i len=$(( COLUMNS - 1 ))
   case $words[CURRENT] in
     (|-[[:digit:]]#))
-      local -a keys=( "${(@k)history}" )
       local -a offsets=( {-1..-$#keys} )
 
       matches=( "${(@)offsets[1,16]}" )
@@ -54,6 +54,18 @@ if [[ $state == 'selection' ]]; then
         d="${(pl:$#SAVEHIST:)m}  ${(Z+C+)history[$m]}"
         displays+=( "${(pr:len:)d}" )
       done
+      ;;
+    *)
+      typeset -aU unique=()
+      for key in $keys; do
+        unique+=( "${matches[$key]%%[[:space:]]*} *" )
+        (( $#unique >= 16 )) && break
+      done
+      if [[ -v compstate[quote] ]]; then
+        matches=( "${(@)unique}" )
+      else
+        matches=( "${(q-@)unique}" )
+      fi
       ;;
   esac
 

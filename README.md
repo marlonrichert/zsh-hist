@@ -9,12 +9,12 @@ Edit your history in Zsh, without ever leaving the command line.
 
 Don't know how to change your key bindings? Please [read these notes](#note-about-key-bindings)
 
-## Added `undo` functionality
+## Added <kbd>undo</kbd> functionality
 On any new command line, you can now press <kbd>undo</kbd> to pop the last command from your
 history into the line editor, letting you correct any mistakes you made before running it back.
 Afterwards, the old command will no longer be found in your history.
 
-## `push-line` to history & `get-line` from history
+## <kbd>push-line</kbd> to history & <kbd>get-line</kbd> from history
 When you press <kbd>push-line</kbd>, <kbd>push-input</kbd> or <kbd>push-line-or-edit</kbd>, your
 line is now written to history (without being executed).
 
