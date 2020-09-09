@@ -1,7 +1,7 @@
 () {
   emulate -LR zsh -o noshortloops -o warncreateglobal -o extendedglob -o rcquotes
 
-  typeset -gU FPATH fpath=( ${${(%):-%x}:A:h}/function $fpath )
+  typeset -gU FPATH fpath=( ${${(%):-%x}:A:h}/function ${${(%):-%x}:A:h} $fpath )
 
   autoload -Uz hist
 

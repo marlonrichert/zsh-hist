@@ -37,7 +37,7 @@ if [[ $state == 'selection' ]]; then
       fi
 
       local -i m; local d; for m in $matches; do
-        d="${(pl:$#SAVEHIST+1:)m} ${(pl:$#SAVEHIST:)keys[-m]}  ${(Z+C+)history[$keys[-m]]}"
+        d="${(pl:$#HISTNO+1:)m}  ${(pl:$#HISTNO:)keys[-m]}  ${(Z+C+)history[$keys[-m]]}"
         displays+=( "${(pr:len:)d}" )
       done
       ;;
@@ -51,7 +51,7 @@ if [[ $state == 'selection' ]]; then
       fi
 
       local -i m; local d; for m in $matches; do
-        d="${(pl:$#SAVEHIST:)m}  ${(Z+C+)history[$m]}"
+        d="${(pl:$#HISTNO:)m}  ${(Z+C+)history[$m]}"
         displays+=( "${(pr:len:)d}" )
       done
       ;;

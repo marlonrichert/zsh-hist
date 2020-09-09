@@ -92,7 +92,7 @@ hist() {
   if ! [[ -v opts[-s] ]]; then
     local key value
     for key in ${(@kn)entries}; do
-      print "${(pl:$#SAVEHIST:)key}  ${(Z+C+)entries[$key]}"
+      print "${(pl:$#HISTNO:)key}  ${(Z+C+)entries[$key]}"
     done
   fi
 
