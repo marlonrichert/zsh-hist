@@ -1,5 +1,5 @@
 #!/bin/zsh
-emulate -LR zsh -o noshortloops -o warncreateglobal -o extendedglob -o rcquotes
+setopt localoptions extendedglob
 
 local suffix=' #:hist:push-line:'
 local -a tuple=( "${(@kv)history[(r)*$~suffix]}" )

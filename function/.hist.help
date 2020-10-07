@@ -1,5 +1,5 @@
 #!/bin/zsh
-emulate -LR zsh -o noshortloops -o warncreateglobal -o extendedglob -o rcquotes
+emulate -L zsh -o noshortloops -o warncreateglobal -o extendedglob -o rcquotes
 
 local key value
 
@@ -10,13 +10,13 @@ print 'Return value:'
 print '  reply  an associative array of history (index, entry) tuples'
 print -l
 print 'Options (can be combined):'
-for key in ${(@ok)_HIST__OPTS}; do
+for key in ${(ko@)_HIST__OPTS}; do
   print "  $key  ${_HIST__OPTS[$key]}"
 done
-print 'By default, hist asks for confirmation when operating on multiple history entries only.'
+print 'By default, hist asks for confirmation only when operating on multiple history entries.'
 print -l
 print 'Actions (required; mutually exclusive):'
-for key in ${(@ok)_HIST__ARGS}; do
+for key in ${(ko@)_HIST__ARGS}; do
   print "  $key  ${_HIST__ARGS[$key]}"
 done
 print -l

@@ -1,7 +1,6 @@
 #!/bin/zsh
-emulate -LR zsh -o noshortloops -o warncreateglobal -o extendedglob
-zmodload -i zsh/parameter zsh/zutil
-autoload -Uz .hist.help
+emulate -L zsh -o noshortloops -o warncreateglobal -o extendedglob
+zmodload zsh/{parameter,zutil}
 
 typeset -gHA _HIST__OPTS=(
   -f 'force:       never ask for confirmation'
@@ -19,7 +18,8 @@ typeset -gHA _HIST__ARGS=(
 )
 
 .hist.yes() {
-  [[ -v opts[-f] ]] && return 0
+  [[ -v opts[-f] ]] &&
+    return 0
 
   print -n "$1"
   read -q '? [y/n] '
@@ -29,7 +29,7 @@ typeset -gHA _HIST__ARGS=(
 }
 
 hist() {
-  emulate -LR zsh -o noshortloops -o warncreateglobal -o extendedglob
+  emulate -L zsh -o noshortloops -o warncreateglobal -o extendedglob
 
   local -A opts=()
   local REPLY
@@ -37,7 +37,8 @@ hist() {
   zparseopts -D -A opts f i s v
   local act=$1 sel=$2
 
-  if [[ $act != [${(j::k)_HIST__ARGS}] && ! -v opts[-s] ]]; then
+  if [[ $act != [${(kj::)_HIST__ARGS}] && ! -v opts[-s] ]]; then
+    autoload -Uz .hist.help
     .hist.help
     return 1
   fi
@@ -54,7 +55,8 @@ hist() {
         local ret=$?
         if (( ? == 0 )); then
           builtin fc -W
-          [[ -v opts[-s] ]] || print 'Revert successful. Previous history restored.'
+          [[ -v opts[-s] ]] ||
+            print 'Revert successful. Previous history restored.'
         else
           [[ -v opts[-s] ]] ||
             print 'Unable to revert. No restore points available in this session.'
@@ -67,7 +69,8 @@ hist() {
 
   local -A entries=()
   local HISTORY_IGNORE
-  [[ -z $sel ]] && sel=0
+  [[ -z $sel ]] &&
+    sel=0
   case $sel in
     0)
       local suffix=' #:hist:push-line:'
@@ -89,7 +92,7 @@ hist() {
       ;;
   esac
 
-  if ! [[ -v opts[-s] ]]; then
+  if [[ ! -v opts[-s] ]]; then
     local key value
     for key in ${(@kn)entries}; do
       print "${(pl:$#HISTNO:)key}  ${(Z+C+)entries[$key]}"
@@ -97,27 +100,26 @@ hist() {
   fi
 
   if (( $#entries == 0 )); then
-    if [[ ! -v opts[-s] ]]; then
-      local what='matching history entries'
-      [[ $sel == 0 ]] && what='pushed lines'
-      print "No $what found."
-    fi
+    [[ -v opts[-s] ]] ||
+      print "No ${${${sel:#0}:+matching history entries}:-pushed lines} found."
     return 1
   fi
 
   if [[ $act != [gl] ]]; then
-    local single_plural="${#entries} entries"
-    (( $#entries == 1 )) && single_plural='1 entry'
+    local single_plural="${#entries} entries"; (( $#entries == 1 )) &&
+      single_plural='1 entry'
 
-    local msg="Delete the $single_plural above from history?"
-    [[ $act == e ]] && msg="Merge the $single_plural above for editing?"
+    local msg="Delete the $single_plural above from history?"; [[ $act == e ]] &&
+      msg="Merge the $single_plural above for editing?"
 
     if (( $#entries == 1 )) && [[ ! -v opts[-i] ]] || .hist.yes $msg; then
       builtin fc -W
       builtin fc -p $HISTFILE $HISTSIZE $SAVEHIST
-      [[ $act != e ]] && [[ ! -v opts[-s] ]] && print "$single_plural deleted."
+      [[ $act != e && ! -v opts[-s] ]] &&
+        print "$single_plural deleted."
     else
-      [[ -v opts[-s] ]] || print '0 entries deleted.'
+      [[ -v opts[-s] ]] ||
+        print '0 entries deleted.'
       return 1
     fi
   fi
@@ -128,11 +130,8 @@ hist() {
 
       bindkey -M zed &> /dev/null || zed -b
       bindkey -M zed '^[^M' accept-line
-      if [[ ! -v opts[-s] ]]; then
-        print -l
-        print "[Alt-Enter: Save]  [Ctrl-C: Cancel]"
-        print -l
-      fi
+      [[ -v opts[-s] ]] ||
+        print -l '' '[Alt-Enter: Save]  [Ctrl-C: Cancel]' ''
 
       local file=$(mktemp)
       print -l ${(v)entries} > $file
@@ -147,12 +146,13 @@ hist() {
             builtin fc -P
           } always {
             builtin fc -W
-            print "Deleted entries restored."
+            print 'Deleted entries restored.'
           }
         else
           print -s $(< $file)
           builtin fc -W
-          [[ -v opts[-s] ]] && print -l && print "New entry saved."
+          [[ -v opts[-s] ]] ||
+            print -l '' 'New entry saved.'
         fi
       }
       ;;

@@ -1,21 +1,23 @@
 #compdef hist
-[[ -z $_HIST__OPTS || -z $_HIST__ARGS ]] && autoload -Uz hist && hist -fs l &> /dev/null
 
-local key val
+[[ -z $_HIST__OPTS || -z $_HIST__ARGS ]] &&
+  autoload -Uz hist && hist -fs l &> /dev/null
+
+local k v
 
 local -a options=()
-for key val in ${(kv)_HIST__OPTS}; do
-  options+=( "${key}[$val]" )
+for k v in ${(kv)_HIST__OPTS}; do
+  options+=( "${k}[$v]" )
 done
 
 local -a actions=()
-for key val in ${(kv)_HIST__ARGS}; do
-  actions+=( "$key\:'$val'" )
+for k v in ${(kv)_HIST__ARGS}; do
+  actions+=( "$k\:'$v'" )
 done
 
 local context state state_descr line
 typeset -A opt_args
-_arguments -s -A '' $options ":action:(($actions))" ":index, offset or pattern:->selection"
+_arguments -s -A '' $options ":action:(( $actions ))" ":index, offset or pattern:->selection"
 
 if [[ $state == 'selection' ]]; then
   local -a keys=( "${(@k)history}" )

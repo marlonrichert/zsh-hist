@@ -1,5 +1,5 @@
 #!/bin/zsh
-emulate -LR zsh -o noshortloops -o warncreateglobal -o extendedglob -o rcquotes
+setopt localoptions extendedglob
 
 if ! zle .undo && [[ -z $BUFFER ]] && (( ZLE_RECURSIVE == 0 )); then
   local reply

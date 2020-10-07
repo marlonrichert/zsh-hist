@@ -1,7 +1,9 @@
+#!/bin/zsh
 () {
-  emulate -LR zsh -o noshortloops -o warncreateglobal -o extendedglob -o rcquotes
+  emulate -L zsh -o extendedglob -o rcquotes -o noshortloops -o warncreateglobal
 
-  typeset -gU FPATH fpath=( ${${(%):-%x}:A:h}/function ${${(%):-%x}:A:h} $fpath )
+  local fdir=${${(%):-%x}:A:h}
+  typeset -gU FPATH fpath=( $fdir/function $fdir $fpath )
 
   autoload -Uz hist
 
