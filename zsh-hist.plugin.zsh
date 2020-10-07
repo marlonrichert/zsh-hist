@@ -3,7 +3,7 @@
   emulate -L zsh -o extendedglob -o rcquotes -o noshortloops -o warncreateglobal
 
   local fdir=${${(%):-%x}:A:h}
-  typeset -gU FPATH fpath=( $fdir/function $fdir $fpath )
+  typeset -gU FPATH fpath=( $fdir/functions $fdir $fpath )
 
   autoload -Uz hist
 
