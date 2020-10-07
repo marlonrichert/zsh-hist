@@ -7,7 +7,7 @@ Edit your history in Zsh, without ever leaving the command line.
 * Push/get lines to/from history with [<kbd>push-line</kbd> and
   <kbd>get-line</kbd>](#push-line-to-history--get-line-from-history).
 
-Don't know how to change your key bindings? Please [read these notes](#note-about-key-bindings)
+(Don't know how to change your key bindings? Please [read these notes](#note-about-key-bindings))
 
 ## Added <kbd>undo</kbd> functionality
 On any new command line, you can now press <kbd>undo</kbd> to pop the last command from your
@@ -38,15 +38,16 @@ Return value:
   reply  an associative array of history (index, entry) tuples
 
 Options (can be combined):
-  -f  force:  never ask for confirmation
-  -i  force:  always ask for confirmation
-  -s  silent: do not print anything
-By default, hist asks for confirmation when operating on multiple history entries only.
+  -f  force:       never ask for confirmation
+  -i  interactive: always ask for confirmation
+  -s  silent:      do not print anything
+By default, hist asks for confirmation only when operating on multiple history entries.
 
 Actions (required; mutually exclusive):
   d  delete: remove from history
   e  edit:   remove from history, then modify & append as new
   f  fix:    remove from history, then load into buffer
+  g  get:    load into buffer
   l  list:   look, but do not touch
   r  reload: re-initialize local history from file
   u  undo:   roll back to before last action in same session
@@ -58,7 +59,7 @@ Selection (required for some actions; mutually exclusive):
   string            pattern to match; can select multiple entries
 ```
 
-### Note About Key Bindings
+## Note About Key Bindings
 `zsh-hist` does not change your key bindings. To use the keyboard commands (a.k.a "widgets") that
 `zsh-hist` enhances, you will need to know to which key strokes they are bound. Not all widgets discussed here are bound by default.
 * Type `bindkey` to see your current key bindings.
@@ -77,5 +78,4 @@ Selection (required for some actions; mutually exclusive):
 © 2020 [Marlon Richert](https://github.com/marlonrichert)
 
 ## License
-This project is licensed under the MIT License. See the
-[LICENSE](/marlonrichert/zsh-hist/LICENSE) file for details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
