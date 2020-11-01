@@ -64,7 +64,7 @@ Selection (required for some actions; mutually exclusive):
 `zsh-hist` enhances, you will need to know to which key strokes they are bound. Not all widgets discussed here are bound by default.
 * Type `bindkey` to see your current key bindings.
 * To add a new new keybinding or override an existing one, add lines like in this example to your
-  `~/.zshrc` file, where `^` means <kbd>ctrl</kbd> and `^[` means <kbd>alt</kbd> (depending on your
+  `~/.zshrc` file, where `^` means <kbd>Ctrl</kbd> and `^[` means <kbd>Alt</kbd> (depending on your
   terminal):
   ```sh
   bindkey "^_" undo

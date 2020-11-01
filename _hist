@@ -24,7 +24,7 @@ if [[ $state == 'selection' ]]; then
   local -a displays=() matches=()
   local -i len=$(( COLUMNS - 1 ))
   case $words[CURRENT] in
-    (|-[[:digit:]]#))
+    (|-<1->))
       local -a offsets=( {-1..-$#keys} )
 
       matches=( "${(@)offsets[1,16]}" )
@@ -43,7 +43,7 @@ if [[ $state == 'selection' ]]; then
         displays+=( "${(pr:len:)d}" )
       done
       ;;
-    [[:digit:]]##)
+    <1->)
       matches=( "${(@kno)history[(I)$words[CURRENT]*]}" )
 
       if (( $#matches == 0 )); then

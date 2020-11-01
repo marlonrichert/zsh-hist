@@ -77,11 +77,11 @@ hist() {
       HISTORY_IGNORE='*'$suffix
       entries=( "${(@kv)history[(R)$~HISTORY_IGNORE]%$suffix}" )
       ;;
-    [[:digit:]]##)
+    <1->)
       HISTORY_IGNORE=${(b)history[$sel]}
       entries[$sel]=$history[$sel]
       ;;
-    -[[:digit:]]##)
+    -<1->)
       sel=${${(@k)history}[-sel]}
       HISTORY_IGNORE=${(b)history[$sel]}
       entries[$sel]=$history[$sel]
