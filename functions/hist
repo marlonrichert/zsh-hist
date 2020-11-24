@@ -119,7 +119,7 @@ hist() {
         print "$single_plural deleted."
     else
       [[ -v opts[-s] ]] ||
-        print '0 entries deleted.'
+        print -l '' '0 entries deleted.'
       return 1
     fi
   fi
