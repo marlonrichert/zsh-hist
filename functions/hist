@@ -17,6 +17,20 @@ typeset -gHA _HIST__ARGS=(
   u  'undo:   roll back to before last action in same session'
 )
 
+.hist.fcparams() {
+  local -a err=()
+  [[ -z $HISTFILE ]] &&
+    err+=( 'hist: error: $HISTFILE has not been set' )
+  (( SAVEHIST == 0 )) &&
+    err+=( 'hist: error: $SAVEHIST is equal to 0' )
+  (( HISTSIZE < 1.2 * SAVEHIST )) &&
+    print -l -u2 - 'hist: warning: $HISTSIZE should be at least 20% larger than $SAVEHIST'
+
+  (( $#err[@] > 0 )) &&
+    print -l -u2 - $err[@]
+  return $#err[@]
+}
+
 .hist.yes() {
   [[ -v opts[-f] ]] &&
     return 0
@@ -45,6 +59,9 @@ hist() {
 
   case $act in
     r)
+      .hist.fcparams ||
+        return
+
       .hist.yes "Replace local history with contents of $HISTFILE?" &&
         builtin fc -p $HISTFILE $HISTSIZE $SAVEHIST
       return
@@ -106,6 +123,9 @@ hist() {
   fi
 
   if [[ $act != [gl] ]]; then
+    .hist.fcparams ||
+      return
+
     local single_plural="${#entries} entries"; (( $#entries == 1 )) &&
       single_plural='1 entry'
 
