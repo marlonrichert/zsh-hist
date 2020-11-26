@@ -6,7 +6,8 @@
   local fdir=$dir/functions
   typeset -gU FPATH fpath=( $fdir $dir $fpath )
 
-  autoload -Uz $fdir/hist $fdir/.hist.*~*.zwc
+  # Work around https://github.com/zdharma/zinit/issues/441
+  builtin autoload -Uz $fdir/hist $fdir/.hist.*~*.zwc
 
   zle -N push-line .hist.push-line.widget
   zle -N push-input .hist.push-line.widget
