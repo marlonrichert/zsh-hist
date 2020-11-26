@@ -11,7 +11,8 @@ local -a actions=()
 print -v actions -f "%s\:'%s'" - "${(kv@)_HIST__ARGS}"
 
 local state
-_arguments -s -A '' $options ":action:(( $actions ))" ":index, offset or pattern:->selection"
+_arguments -s -A '' ${(i)options} ":action:(( ${(j: :)${(i)actions[@]}} ))" \
+  ":index, offset or pattern:->selection"
 
 [[ $state == 'selection' ]] ||
   return
