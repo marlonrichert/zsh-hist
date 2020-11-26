@@ -6,72 +6,43 @@
 local k v
 
 local -a options=()
-for k v in ${(kv)_HIST__OPTS}; do
-  options+=( "${k}[$v]" )
-done
-
+print -v options -f '%s[%s]' - "${(kv@)_HIST__OPTS}"
 local -a actions=()
-for k v in ${(kv)_HIST__ARGS}; do
-  actions+=( "$k\:'$v'" )
-done
+print -v actions -f "%s\:'%s'" - "${(kv@)_HIST__ARGS}"
 
-local context state state_descr line
-typeset -A opt_args
+local state
 _arguments -s -A '' $options ":action:(( $actions ))" ":index, offset or pattern:->selection"
 
-if [[ $state == 'selection' ]]; then
-  local -a keys=( "${(@k)history}" )
-  local -a displays=() matches=()
-  local -i len=$(( COLUMNS - 1 ))
-  case $words[CURRENT] in
-    (|-<1->))
-      local -a offsets=( {-1..-$#keys} )
+[[ $state == 'selection' ]] ||
+  return
 
-      matches=( "${(@)offsets[1,16]}" )
-      if [[ $words[CURRENT] != (|-) ]]; then
-        local -A map=( "${(@)offsets:^keys}" )
-        matches=( "${(@nO)map[(I)$words[CURRENT]*]}" )
-        if (( $#matches == 0 )); then
-          matches=( "${(@)offsets[1,16]}" )
-        elif (( $#matches > 16 )); then
-          matches=( "${(@)matches[-16,-1]}" )
-        fi
-      fi
-
-      local -i m; local d; for m in $matches; do
-        d="${(pl:$#HISTNO+1:)m}  ${(pl:$#HISTNO:)keys[-m]}  ${(Z+C+)history[$keys[-m]]}"
-        displays+=( "${(pr:len:)d}" )
-      done
-      ;;
-    <1->)
-      matches=( "${(@kno)history[(I)$words[CURRENT]*]}" )
-
-      if (( $#matches == 0 )); then
-        matches=( "${(@k)history[1,16]}" )
-      elif (( $#matches > 16 )); then
-        matches=( "${(@)matches[1,16]}" )
-      fi
-
-      local -i m; local d; for m in $matches; do
-        d="${(pl:$#HISTNO:)m}  ${(Z+C+)history[$m]}"
-        displays+=( "${(pr:len:)d}" )
-      done
-      ;;
-    *)
-      typeset -aU unique=()
-      for key in $keys; do
-        unique+=( "${matches[$key]%%[[:space:]]*} *" )
-        (( $#unique >= 16 )) && break
-      done
-      if [[ -v compstate[quote] ]]; then
-        matches=( "${(@)unique}" )
-      else
-        matches=( "${(q-@)unique}" )
-      fi
-      ;;
-  esac
-
-  local expl
-  _description hist-selection expl 'index, offset or pattern'
-  compadd "$expl[@]" -Q -ld displays -a matches
-fi
+local -a keys=() events=() displays=() matches=()
+local -i end=15
+case $words[CURRENT] in
+  '')
+    words[CURRENT]=-1
+    ;&
+  -<1->)
+    local -i start=$(( HISTNO + words[CURRENT] ))
+    keys=( {$start..$(( start - end ))} )
+    print -v events -f "%$#HISTNO.${#HISTNO}s  %s" "${(kv@)history[(I)(${(~j:|:)keys})]}"
+    local -a offsets=( {$words[CURRENT]..$(( words[CURRENT] - end ))} )
+    local -i len=$(( $#HISTNO + 1 ))
+    print -v displays -f "%$len.${len}s  %s" "${(@)offsets:^events}"
+    ;;
+  <1->)
+    keys=( {$words[CURRENT]..$(( words[CURRENT] + end ))} )
+    print -v events -f "%$#HISTNO.${#HISTNO}s  %s" "${(kv@)history[(I)(${(~j:|:)keys})]}"
+    displays=( "${(Oa@)events[@]}" )
+    ;;
+  *)
+    return
+    ;;
+esac
+local -i MBEGIN MEND
+local MATCH
+displays=( "${(@)displays[@]:/(#m)*/${(r:COLUMNS-1:)MATCH//$'\n'/\n}}" )
+matches=( "${(@)${displays[@]##[[:space:]]#}[@]%%[[:space:]]##*}" )
+local expl _comp_no_ignore=1
+_description events expl 'index, offset or pattern'
+compadd "$expl[@]" -S '' -QU -ld displays -a matches
