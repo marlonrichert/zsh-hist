@@ -1,6 +1,7 @@
 #!/bin/zsh
 emulate -L zsh -o noshortloops -o warncreateglobal -o extendedglob
-zmodload zsh/{parameter,zutil}
+zmodload -F zsh/parameter p:history
+zmodload -F zsh/zutil b:zparseopts
 
 typeset -gHA _HIST__OPTS=(
   -f 'force:       never ask for confirmation'
@@ -35,7 +36,8 @@ typeset -gHA _HIST__ARGS=(
   [[ -v opts[-f] ]] &&
     return 0
 
-  print -n "$1"
+  local bold=$'\e[1m' none=$'\e[0m'
+  print -lnr - '' "$bold$1$none"
   read -q '? [y/n] '
   local ret=$?
   print -l
@@ -62,7 +64,7 @@ hist() {
       .hist.fcparams ||
         return
 
-      .hist.yes "Replace local history with contents of $HISTFILE?" &&
+      .hist.yes "Replace current history with contents of $HISTFILE?" &&
         builtin fc -p $HISTFILE $HISTSIZE $SAVEHIST
       return
       ;;
@@ -110,9 +112,10 @@ hist() {
   esac
 
   if [[ ! -v opts[-s] ]]; then
-    local key value
+    local key value faint=$'\e[2m' reverse=$'\e[7m' none=$'\e[0m'
     for key in ${(@kn)entries}; do
-      print "${(pl:$#HISTNO:)key}  ${(Z+C+)entries[$key]}"
+      print -r - "$faint${(l:$#HISTCMD:)key}$none" \
+        "${entries[$key]//(#m)[^[:print:]]##/$reverse${${${(q+)MATCH}#$\'}%\'}$none}"
     done
   fi
 
@@ -148,10 +151,11 @@ hist() {
     e)
       autoload -Uz zed
 
-      bindkey -M zed &> /dev/null || zed -b
+      bindkey -M zed &>/dev/null ||
+        zed -b
       bindkey -M zed '^[^M' accept-line
       [[ -v opts[-s] ]] ||
-        print -l '' '[Alt-Enter: Save]  [Ctrl-C: Cancel]' ''
+        print -lr - '' $'\e[1;2m[Alt-Enter: Save]  [Ctrl-C: Cancel]\e[0m' ''
 
       local file=$(mktemp)
       print -l ${(v)entries} > $file
@@ -166,7 +170,7 @@ hist() {
             builtin fc -P
           } always {
             builtin fc -W
-            print 'Deleted entries restored.'
+            print -l - '' 'Deleted entries restored.'
           }
         else
           print -s $(< $file)

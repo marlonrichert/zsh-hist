@@ -42,7 +42,9 @@ case $words[CURRENT] in
 esac
 local -i MBEGIN MEND
 local MATCH
-displays=( "${(@)displays[@]:/(#m)*/${(r:COLUMNS-1:)MATCH//$'\n'/\n}}" )
+displays=(
+  "${(@)displays[@]:/(#m)*/${(r:COLUMNS-1:)MATCH//(#m)($'\n'|[^[:print:]])##/${(q+)MATCH}}}"
+)
 matches=( "${(@)${displays[@]##[[:space:]]#}[@]%%[[:space:]]##*}" )
 local expl _comp_no_ignore=1
 _description events expl 'index, offset or pattern'
