@@ -36,10 +36,8 @@ typeset -gHA _HIST__ARGS=(
   [[ -v opts[-f] ]] &&
     return 0
 
-  local bold=$'\e[1m' none=$'\e[0m'
-  print -lnr - '' "$bold$1$none"
-  read -q '? [y/n] '
-  local ret=$?
+  print -lnPr - '' "%B$1%b"
+  read -q '? [y/n] '; local ret=$?
   print -l
   return ret
 }
@@ -149,20 +147,9 @@ hist() {
 
   case $act in
     e)
-      autoload -Uz zed
-
-      bindkey -M zed &>/dev/null ||
-        zed -b
-      bindkey -M zed '^[^M' accept-line
-      [[ -v opts[-s] ]] ||
-        print -lr - '' $'\e[1;2m[Alt-Enter: Save]  [Ctrl-C: Cancel]\e[0m' ''
-
-      local file=$(mktemp)
-      print -l ${(v)entries} > $file
-
-      setopt NO_warncreateglobal
+      local new=${(vF)entries}
       {
-        zed $file
+        vared new
       } always {
         if (( TRY_BLOCK_INTERRUPT > 0 )); then
           TRY_BLOCK_INTERRUPT=0
@@ -173,7 +160,7 @@ hist() {
             print -l - '' 'Deleted entries restored.'
           }
         else
-          print -s $(< $file)
+          print -s $new
           builtin fc -W
           [[ -v opts[-s] ]] ||
             print -l '' 'New entry saved.'
