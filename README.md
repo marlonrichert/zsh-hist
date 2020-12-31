@@ -3,6 +3,7 @@ Edit your history in Zsh, without ever leaving the command line.
 
 * [Installation](#installation)
 * Features:
+  * Elimate more duplicates by applying [uniform code formatting](#uniform-code-formatting).
   * Fix your previous command by [pressing <kbd>undo</kbd>](#added-undo-functionality).
   * Push & get lines to/from history with [<kbd>push-line</kbd> and
     <kbd>get-line</kbd>](#push--get-lines-tofrom-history).
@@ -19,6 +20,14 @@ Edit your history in Zsh, without ever leaving the command line.
     ```
 
 To update, `cd` into your clone and `git pull`.
+
+## Uniform code formatting
+Whenever you finish your command line, `zsh-hist` will automatically format it for you, before it
+is saved to history. You can also retroactively format your history with
+[`hist n`](#hist-command-syntax).
+
+**Note:** For the auto-formatted code to be saved correctly to history, you need to
+`unsetopt HIST_REDUCE_BLANKS`.
 
 ## Added Undo functionality
 On any new command line, you can now press <kbd>undo</kbd> to pop the last command from your
@@ -43,10 +52,10 @@ To get a list of all pushed lines in your history, just type `hist l`.
 ## `hist` command syntax
 ```
 Usage:
-  hist [options] <action> [selection]  ->  $reply
+  hist [<option>...] <action> [<selection>]  ->  $reply
 
 Return value:
-  reply  an associative array of history (index, entry) tuples
+  $reply  an associative array of history (index -> entry) tuples
 
 Options (can be combined):
   -f  force:       never ask for confirmation
@@ -55,31 +64,32 @@ Options (can be combined):
 By default, hist asks for confirmation only when operating on multiple history entries.
 
 Actions (required; mutually exclusive):
-  d  delete: remove from history
-  e  edit:   remove from history, then modify & append as new
-  f  fix:    remove from history, then load into buffer
-  g  get:    load into buffer
-  l  list:   look, but do not touch
-  r  reload: re-initialize local history from file
-  u  undo:   roll back to before last action in same session
+  d  delete:     remove from history
+  e  edit:       remove from history, then modify & append as new
+  f  fix:        remove from history, then load into buffer
+  g  get:        load into buffer
+  l  list:       look, but do not touch
+  n  normalize:  remove from history, then format & append as new
+  r  reload:     re-initialize local history from file
+  u  undo:       roll back to before last action in same session
 
 Selection (required for some actions; mutually exclusive):
-  empty or 0        pushed lines
-  positive integer  index from beginning of history
-  negative integer  offset from end of history
-  string            pattern to match; can select multiple entries
+  no arg        pushed lines
+  positive int  index from beginning of history
+  negative int  offset from end of history
+  string        pattern to match; can select multiple entries
 
 
 --Examples--
 
-Delete all history items starting with `fc `:
-  hist d 'fc *'
-
-List all history items starting with `git ` and ending with `lease`:
-  hist l 'git *lease'
-
-Fix the last history item: Cut from history, paste into command line.
+Fix (cut from history; paste into command line) the last history item:
   hist f -1
+
+List all command lines youve saved to history with the `push-line` widget
+  hist l
+
+Delete all history items ending with a newline or a semicolon:
+  hist d $'*(\n|;)'
 ```
 
 ## Note about key bindings

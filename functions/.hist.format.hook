@@ -1,0 +1,7 @@
+#!/bin/zsh
+local REPLY
+.hist.format $BUFFER &&
+  BUFFER=$REPLY
+[[ -v functions[_zsh_highlight] ]] &&
+  _zsh_highlight
+zle -Rc

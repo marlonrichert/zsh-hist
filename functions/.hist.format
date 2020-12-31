@@ -1,0 +1,16 @@
+#!/bin/zsh
+{
+  if eval ".tmp.() { $1 }" 2>/dev/null; then
+    local -a reply match mbegin mend
+    reply=( "${(@)${(@)${(f)functions[.tmp.]}//(#s)$'\t'/}//$'\t'/  }" )
+    REPLY=${(F)reply:/(#b)([[:space:]]##)\((*\)) (*)/$match[1]$match[2]$'\n'  $match[1]$match[3]}
+    REPLY=${(F)${(f)REPLY}:/(#b)(*)(';'?)/$match[1]$'\n'${(M)match[1]##[[:space:]]##}$match[2]}
+    reply=( ${(@)${(f)REPLY}[@]%%[[:space:]]##} )
+    reply=( ${(@)reply[@]:/(#b)([^[:space:]]##) '() {'/$match[1]'() {'} )
+    REPLY=${${(F)reply}//$'\n'[[:space:]]#(#b)(do|then)$'\n'/; $match[1]$'\n'}
+    REPLY=${REPLY//$'\n'[[:space:]]#$'\n'/}
+  fi
+} always {
+  [[ -v functions[.tmp.] ]] &&
+    unfunction .tmp.
+}

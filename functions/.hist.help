@@ -1,25 +1,24 @@
 #!/bin/zsh
 emulate -L zsh -o warncreateglobal -o extendedglob -o rcquotes
 
-local key value
-
+local k
 print -lr - \
   'Usage:' \
-  '  hist [options] <action> [selection]  ->  $reply' \
+  '  hist [<option>...] <action> [<selection>]  ->  $reply' \
   '' \
   'Return value:' \
   '  $reply  an associative array of history (index -> entry) tuples' \
   '' \
   'Options (can be combined):'
-for key in ${(ko@)_HIST__OPTS}; do
-  print -lr - "  $key  ${_HIST__OPTS[$key]}"
+for k in ${(ko@)_HIST__OPTS}; do
+  print -lr - "  $k  ${_HIST__OPTS[$k]}"
 done
 print -lr - \
   'By default, hist asks for confirmation only when operating on multiple history entries.' \
   '' \
   'Actions (required; mutually exclusive):'
-for key in ${(ko@)_HIST__ARGS}; do
-  print -lr - "  $key  ${_HIST__ARGS[$key]}"
+for k in ${(ko@)_HIST__ARGS}; do
+  print -lr - "  $k  ${_HIST__ARGS[$k]}"
 done
 print -lr - \
   '' \

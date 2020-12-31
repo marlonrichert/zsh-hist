@@ -16,4 +16,7 @@
   zle -N get-line .hist.get-line.widget
 
   zle -N undo .hist.undo.widget
+
+  autoload -Uz add-zle-hook-widget
+  add-zle-hook-widget line-finish .hist.format.hook
 }
