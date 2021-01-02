@@ -2,7 +2,12 @@
 zmodload -F zsh/parameter p:functions
 
 .hist.format() {
-  setopt localoptions NO_aliases
+  setopt localoptions
+  if zstyle -t :hist: expand-aliases; then
+    setopt aliases
+  else
+    setopt NO_aliases
+  fi
   REPLY="$1"
   local -i ret=1
   {

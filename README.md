@@ -4,6 +4,8 @@ Edit your history in Zsh, without ever leaving the command line.
 * [Installation](#installation)
 * Features:
   * Elimate more duplicates by applying [uniform code formatting](#uniform-code-formatting).
+  * (Optional) [Automatically expand aliases](#optional-automatic-alias-expansion) before each
+    command line is saved to history.
   * Fix your previous command by [pressing <kbd>undo</kbd>](#added-undo-functionality).
   * Push & get lines to/from history with [<kbd>push-line</kbd> and
     <kbd>get-line</kbd>](#push--get-lines-tofrom-history).
@@ -26,14 +28,29 @@ Whenever you finish your command line, `zsh-hist` will automatically format it f
 is saved to history. You can also retroactively format your history with
 [`hist n`](#hist-command-syntax).
 
-**Note:** For the formatting to be preserved completely when the command is saved history, you need
-to `unsetopt HIST_REDUCE_BLANKS` in your `.zshrc` file. Otherwise, most of the indentation will get
-lost.
+**Notes:**
+* For the formatting to be preserved completely when the command is saved history, you need to
+  `unsetopt HIST_REDUCE_BLANKS` in your `.zshrc` file. Otherwise, most of the indentation will get
+  lost.
+* Formatting the code can disable certain crazy uses of global aliases. For example, since the
+  formatting turns most `;`s into newlines, declaring `;` as a global alias will most of the time
+  simply not have any effect. Since this is not something a normal person would want to do, most
+  users don't need to worry about this. However, if you are a purist and want that the formatting
+  can _never_ change the way Zsh works, then please enable the [automatic alias
+  expansion](#optional-automatic-alias-expansion) feature below.
+
+## (Optional) Automatic alias expansion
+`zsh-hist` can automatically expand your aliases before each command line is saved to history.
+This is disabled by default, but to enable it, add the following to your `.zshrc` file:
+```zsh
+zstyle ':hist:*' expand-aliases yes
+```
 
 ## Added Undo functionality
 On any new command line, you can now press <kbd>undo</kbd> to pop the last command from your
 history into the line editor, letting you correct any mistakes you made, before running it back.
-Afterwards, the old, faulty command will be gone from your history.
+Afterwards, the old, faulty command will be gone from your history and only the new, corrected one
+remains.
 
 ## Push & Get lines to/from history
 When you press <kbd>push-line</kbd>, <kbd>push-input</kbd> or <kbd>push-line-or-edit</kbd>, your
