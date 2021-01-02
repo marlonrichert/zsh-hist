@@ -8,14 +8,16 @@ zmodload -F zsh/parameter p:functions
   {
     functions[.tmp.]="$1" 2>/dev/null
     if [[ -n $functions[.tmp.] ]]; then
-      local body=$functions[.tmp.]
       REPLY=''
-      local word chunk
-      for word in ${(@)${(z)functions[.tmp.]}:#';'}; do
+      local word chunk body=$'\n'$functions[.tmp.]
+      for word in ${(Z+n+)functions[.tmp.]}; do
         chunk=${(M)body#*$word}
         body=${body#$chunk}
-        REPLY+=${chunk%%$'\t'##$word}${${(M)chunk%%$'\t'##$word}#$'\t'}
+        prefix=${${chunk%$word}%%$'\n'$'\t'##}
+        indent=${${chunk#$prefix}%$word}
+        REPLY+=$prefix${indent%$'\t'}$word
       done
+      REPLY=${REPLY#$'\n'}
       ret=0
     fi
   } always {

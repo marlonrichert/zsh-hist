@@ -26,8 +26,9 @@ Whenever you finish your command line, `zsh-hist` will automatically format it f
 is saved to history. You can also retroactively format your history with
 [`hist n`](#hist-command-syntax).
 
-**Note:** For the auto-formatted code to be saved correctly to history, you need to
-`unsetopt HIST_REDUCE_BLANKS`.
+**Note:** For the formatting to be preserved completely when the command is saved history, you need
+to `unsetopt HIST_REDUCE_BLANKS` in your `.zshrc` file. Otherwise, most of the indentation will get
+lost.
 
 ## Added Undo functionality
 On any new command line, you can now press <kbd>undo</kbd> to pop the last command from your
