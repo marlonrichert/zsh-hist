@@ -1,7 +1,7 @@
 #!/bin/zsh
 
 [[ -o histignorespace && $BUFFER == ' '* ]] &&
-  return
+  return 0
 
 local REPLY
 .hist.format $BUFFER &&
@@ -9,3 +9,5 @@ local REPLY
 [[ -v functions[_zsh_highlight] ]] &&
   _zsh_highlight
 zle -Rc
+
+return 0
