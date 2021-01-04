@@ -1,4 +1,8 @@
 #!/bin/zsh
+
+[[ -o histignorespace && $BUFFER == ' '* ]] &&
+  return
+
 local REPLY
 .hist.format $BUFFER &&
   BUFFER=$REPLY

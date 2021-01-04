@@ -48,7 +48,7 @@ typeset -gHA _HIST__ARGS=(
 }
 
 hist() {
-  emulate -L zsh -o noshortloops -o warncreateglobal -o extendedglob
+  emulate -L zsh -o extendedglob -o warncreateglobal
 
   local -A opts=()
   local REPLY
