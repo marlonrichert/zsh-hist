@@ -18,9 +18,9 @@ zmodload -F zsh/parameter p:functions
       for word in ${(Z+n+)functions[.tmp.]}; do
         chunk=${(M)body#*$word}
         body=${body#$chunk}
-        prefix=${${chunk%$word}%%$'\n'$'\t'##}
+        prefix=${${chunk%$word}%%$'\n'$'\t'##( |)}
         indent=${${chunk#$prefix}%$word}
-        REPLY+=$prefix${indent%$'\t'}$word
+        REPLY+=$prefix${indent%$'\t'( |)}$word
       done
       REPLY=${REPLY#$'\n'}
       ret=0

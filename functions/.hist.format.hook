@@ -8,6 +8,5 @@ local REPLY
   BUFFER=$REPLY
 [[ -v functions[_zsh_highlight] ]] &&
   _zsh_highlight
-zle -Rc
 
 return 0
