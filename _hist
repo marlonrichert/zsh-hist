@@ -1,9 +1,9 @@
 #compdef hist
 
-[[ -z $_HIST__OPTS || -z $_HIST__ARGS ]] &&
-  autoload -Uz hist && hist -fs l &> /dev/null
-
-local k v
+if [[ -z $_HIST__OPTS || -z $_HIST__ARGS ]]; then
+  autoload -Uz hist
+  hist -fs l &> /dev/null
+fi
 
 local -a options=()
 print -v options -f '%s[%s]' - "${(kv@)_HIST__OPTS}"

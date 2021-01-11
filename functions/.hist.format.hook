@@ -3,6 +3,8 @@
 [[ -o histignorespace && $BUFFER == ' '* ]] &&
   return 0
 
+emulate -L zsh; setopt extendedglob warncreateglobal
+
 local REPLY
 .hist.format $BUFFER &&
   BUFFER=$REPLY

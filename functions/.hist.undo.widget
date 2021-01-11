@@ -1,5 +1,5 @@
 #!/bin/zsh
-setopt localoptions extendedglob
+emulate -L zsh; setopt extendedglob warncreateglobal
 
 if ! zle .undo && [[ -z $BUFFER ]] && (( ZLE_RECURSIVE == 0 )); then
   local reply

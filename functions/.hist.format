@@ -2,19 +2,21 @@
 zmodload -F zsh/parameter p:functions
 
 .hist.format() {
-  setopt localoptions
+  emulate -L zsh; setopt extendedglob warncreateglobal
   if zstyle -t :hist: expand-aliases; then
     setopt aliases
   else
     setopt NO_aliases
   fi
+
   REPLY="$1"
   local -i ret=1
   {
     functions[.tmp.]="$1" 2>/dev/null
     if [[ -n $functions[.tmp.] ]]; then
       REPLY=''
-      local word chunk body=$'\n'$functions[.tmp.]
+      local body=$'\n'$functions[.tmp.]
+      local word chunk indent prefix
       for word in ${(Z+n+)functions[.tmp.]}; do
         chunk=${(M)body#*$word}
         body=${body#$chunk}

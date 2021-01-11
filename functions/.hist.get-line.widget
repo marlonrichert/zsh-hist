@@ -1,10 +1,11 @@
 #!/bin/zsh
-setopt localoptions extendedglob
+emulate -L zsh; setopt extendedglob warncreateglobal
 
 local suffix=' #:hist:push-line:'
-local -a tuple=( "${(@kv)history[(r)*$~suffix]}" )
+local -a tuple=( "${(@kv)history[(r)*$suffix]}" )
 
-[[ -z $tuple ]] && return 1
+[[ -z $tuple ]] &&
+  return 1
 
 LBUFFER+=${${tuple[2]}%%$suffix}
 

@@ -1,5 +1,5 @@
 #!/bin/zsh
-emulate -L zsh -o warncreateglobal -o extendedglob -o rcquotes
+emulate -L zsh; setopt extendedglob rcquotes warncreateglobal
 
 local k
 print -lr - \
