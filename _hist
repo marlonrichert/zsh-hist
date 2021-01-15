@@ -20,10 +20,10 @@ _arguments -s -A '' ${(i)options} ":action:(( ${(j: :)${(i)actions[@]}} ))" \
 local -a keys=() events=() displays=() matches=()
 local -i end=15
 case $words[CURRENT] in
-  '')
+  | - )
     words[CURRENT]=-1
     ;&
-  -<1->)
+  -<1-> )
     local -i start=$(( HISTNO + words[CURRENT] ))
     keys=( {$start..$(( start - end ))} )
     print -v events -f "%$#HISTNO.${#HISTNO}s  %s" "${(kv@)history[(I)(${(~j:|:)keys})]}"
@@ -31,12 +31,12 @@ case $words[CURRENT] in
     local -i len=$(( $#HISTNO + 1 ))
     print -v displays -f "%$len.${len}s  %s" "${(@)offsets:^events}"
     ;;
-  <1->)
+  <1-> )
     keys=( {$words[CURRENT]..$(( words[CURRENT] + end ))} )
     print -v events -f "%$#HISTNO.${#HISTNO}s  %s" "${(kv@)history[(I)(${(~j:|:)keys})]}"
     displays=( "${(Oa@)events[@]}" )
     ;;
-  *)
+  * )
     return
     ;;
 esac
