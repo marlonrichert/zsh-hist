@@ -4,7 +4,7 @@
 
   local dir=${${(%):-%x}:A:h}
   local fdir=$dir/functions
-  typeset -gU FPATH fpath=( $fdir $dir $fpath )
+  export -U fpath=( $fdir $dir $fpath )
 
   # Work around https://github.com/zdharma/zinit/issues/441
   builtin autoload -Uz $fdir/hist $fdir/.hist.*~*.zwc

@@ -52,6 +52,9 @@ history into the line editor, letting you correct any mistakes you made, before 
 Afterwards, the old, faulty command will be gone from your history and only the new, corrected one
 remains.
 
+Additionally, if you make a typo and end up on the secondary prompt, you can now press
+<kbd>undo</kbd> to return to the primary prompt.
+
 ## Push & Get lines to/from history
 When you press <kbd>push-line</kbd>, <kbd>push-input</kbd> or <kbd>push-line-or-edit</kbd>, your
 line is now written to history (without being executed) instead of to the buffer stack.

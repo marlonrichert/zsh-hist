@@ -1,9 +1,16 @@
 #!/bin/zsh
 emulate -L zsh; setopt extendedglob warncreateglobal
 
-if ! zle .undo && [[ $CONTEXT == start && -z $BUFFER ]] && (( ZLE_RECURSIVE == 0 )); then
-  local reply
-  hist -fs d -1
-  LBUFFER+=$reply[2]
-  UNDO_LIMIT_NO=$UNDO_CHANGE_NO
+if ! zle .undo && [[ -z $BUFFER && ZLE_RECURSIVE -eq 0 ]]; then
+  case $CONTEXT in
+    start )
+      local reply
+      hist -fs d -1
+      LBUFFER+=$reply[2]
+      UNDO_LIMIT_NO=$UNDO_CHANGE_NO
+      ;;
+    cont )
+      zle .push-line-or-edit
+      ;;
+  esac
 fi
