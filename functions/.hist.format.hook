@@ -6,9 +6,12 @@
 emulate -L zsh; setopt extendedglob warncreateglobal
 
 local REPLY
-.hist.format $BUFFER &&
+if .hist.format $BUFFER; then
   BUFFER=$REPLY
-[[ -v functions[_zsh_highlight] ]] &&
-  _zsh_highlight
-
+  [[ -v functions[_zsh_highlight] ]] &&
+    _zsh_highlight
+  zle .reset-prompt
+  zle .end-of-buffer-or-history
+  zle -R
+fi
 return 0
