@@ -17,11 +17,13 @@
 
   zle -N undo .hist.undo.widget
 
-  autoload -Uz add-zsh-hook add-zle-hook-widget
+  autoload -Uz add-zsh-hook
   :hist:precmd() {
     local 0=${(%):-%N}
     add-zsh-hook -d precmd $0
     unfunction $0
+
+    autoload -Uz add-zle-hook-widget
     add-zle-hook-widget line-finish .hist.format.hook
   }
   add-zsh-hook precmd :hist:precmd

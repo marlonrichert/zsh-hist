@@ -110,7 +110,7 @@ hist() {
       ;;
     *)
       HISTORY_IGNORE=$sel
-      entries=( "${(@kv)history[(R)$sel]}" )
+      entries=( "${(@kv)history[(R)$~sel]}" )
       ;;
   esac
 
