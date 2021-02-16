@@ -3,7 +3,7 @@ Edit your history in Zsh, without ever leaving the command line.
 
 * [Installation](#installation)
 * Features:
-  * Elimate more duplicates by applying [uniform code formatting](#uniform-code-formatting).
+  * Eliminate more duplicates by applying [uniform code formatting](#uniform-code-formatting).
   * (Optional) [Automatically expand aliases](#optional-automatic-alias-expansion) before each
     command line is saved to history.
   * Fix your previous command by [pressing <kbd>undo</kbd>](#added-undo-functionality).
