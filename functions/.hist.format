@@ -11,8 +11,11 @@ zmodload -F zsh/parameter p:functions
 
   REPLY="$1"
   local -i ret=1
+  zsh -nf <<< "$1" 2>/dev/null ||
+    return
   {
-    functions[.tmp.]="$1" 2>/dev/null
+    functions[.tmp.]="$1" 2>/dev/null ||
+      return
     if [[ -n $functions[.tmp.] ]]; then
       REPLY=''
       local body=$'\n'$functions[.tmp.]
