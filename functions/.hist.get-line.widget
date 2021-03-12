@@ -9,5 +9,5 @@ local -a tuple=( "${(@kv)history[(r)*$suffix]}" )
 
 LBUFFER+=${${tuple[2]}%%$suffix}
 
-local reply
+local -a reply=()
 hist -fs d $tuple[1]

@@ -4,7 +4,7 @@ emulate -L zsh; setopt extendedglob warncreateglobal
 if ! zle .undo && [[ -z $BUFFER && ZLE_RECURSIVE -eq 0 ]]; then
   case $CONTEXT in
     start )
-      local reply
+      local -a reply=()
       hist -fs d -1
       LBUFFER+=$reply[2]
       UNDO_LIMIT_NO=$UNDO_CHANGE_NO
