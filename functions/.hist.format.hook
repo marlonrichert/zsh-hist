@@ -1,16 +1,24 @@
 #!/bin/zsh
 
 [[ -o histignorespace && $BUFFER == ' '* ]] &&
-  return 0
+    return 0
 
-emulate -L zsh; setopt extendedglob warncreateglobal
+emulate -L zsh
+setopt extendedglob warncreateglobal
 
 local REPLY
-if .hist.format $BUFFER; then
-  LBUFFER=$REPLY
+if .hist.format $PREBUFFER$BUFFER; then
+
+  if [[ -n $PREBUFFER ]]; then
+    zle .beep
+    zle .push-line-or-edit
+  fi
+
+  LBUFFER="$REPLY"
   RBUFFER=
+  unset PREDISPLAY POSTDISPLAY
   [[ -v functions[_zsh_highlight] ]] &&
-    _zsh_highlight
+      _zsh_highlight
   zle -R
 fi
 return 0

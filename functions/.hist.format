@@ -2,7 +2,8 @@
 zmodload -F zsh/parameter p:functions
 
 .hist.format() {
-  emulate -L zsh; setopt extendedglob warncreateglobal
+  emulate -L zsh
+  setopt extendedglob warncreateglobal
   if zstyle -t :hist: expand-aliases; then
     setopt aliases
   else
@@ -10,31 +11,27 @@ zmodload -F zsh/parameter p:functions
   fi
 
   REPLY="$1"
-  local -i ret=1
-  zsh -nf <<< "$1" 2>/dev/null ||
-    return
   {
-    functions[.tmp.]="$1" 2>/dev/null ||
-      return
-    if [[ -n $functions[.tmp.] ]]; then
-      REPLY=''
-      local body=$'\n'$functions[.tmp.]
-      local word chunk indent prefix
-      for word in ${(Z+n+)functions[.tmp.]}; do
-        chunk=${(M)body#*$word}
-        body=${body#$chunk}
-        prefix=${${chunk%$word}%%$'\n'$'\t'##( |)}
-        indent=${${chunk#$prefix}%$word}
-        REPLY+=$prefix${indent%$'\t'( |)}$word
-      done
-      REPLY=${REPLY#$'\n'}
-      ret=0
-    fi
+    eval ".hist.tmp.() { $1 }" 2>/dev/null ||
+        return
+    [[ ${${(Z+C+)1}:#\;} == ${${(Z+C+)functions[.hist.tmp.]}:#\;} ]] ||
+        return
+
+    REPLY=''
+    local body=$'\n'"$functions[.hist.tmp.]"
+    local word chunk indent prefix
+    for word in ${(Z+n+)body}; do
+      chunk=${(M)body#*$word}
+      body=${body#$chunk}
+      prefix=${${chunk%$word}%%$'\n'$'\t'##( |)}
+      indent=${${chunk#$prefix}%$word}
+      REPLY+=$prefix${indent%$'\t'( |)}$word
+    done
+    REPLY=${REPLY#$'\n'}
   } always {
-    [[ -v functions[.tmp.] ]] &&
-      unfunction .tmp.
+    [[ -v functions[.hist.tmp.] ]] &&
+        unfunction .hist.tmp.
   }
-  return ret
 }
 
 .hist.format "$@"

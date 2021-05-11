@@ -24,6 +24,7 @@
     unfunction $0
 
     autoload -Uz add-zle-hook-widget
+    add-zle-hook-widget line-init .hist.format.hook
     add-zle-hook-widget line-finish .hist.format.hook
   }
   add-zsh-hook precmd :hist:precmd
