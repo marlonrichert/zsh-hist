@@ -4,32 +4,32 @@ zmodload -F zsh/parameter p:history
 zmodload -F zsh/zutil b:zparseopts
 
 typeset -gHA _HIST__OPTS=(
-  -f 'force:       never ask for confirmation'
-  -i 'interactive: always ask for confirmation'
-  -s 'silent:      do not print anything'
+    -f 'force:       never ask for confirmation'
+    -i 'interactive: always ask for confirmation'
+    -s 'silent:      do not print anything'
 )
 typeset -gHA _HIST__ARGS=(
-  d  'delete:     remove from history'
-  e  'edit:       remove from history, then modify & append as new'
-  f  'fix:        remove from history, then load into buffer'
-  g  'get:        load into buffer'
-  l  'list:       look, but do not touch'
-  n  'normalize:  remove from history, then format & append as new'
-  r  'reload:     re-initialize local history from file'
-  u  'undo:       roll back to before last action in same session'
+    d  'delete:     remove from history'
+    e  'edit:       remove from history, then modify & append as new'
+    f  'fix:        remove from history, then load into buffer'
+    g  'get:        load into buffer'
+    l  'list:       look, but do not touch'
+    n  'normalize:  remove from history, then format & append as new'
+    r  'reload:     re-initialize local history from file'
+    u  'undo:       roll back to before last action in same session'
 )
 
 .hist.fcparams() {
   local -a err=()
   [[ -z $HISTFILE ]] &&
-    err+=( 'hist: error: $HISTFILE has not been set' )
+      err+=( 'hist: error: $HISTFILE has not been set' )
   (( SAVEHIST == 0 )) &&
-    err+=( 'hist: error: $SAVEHIST is equal to 0' )
+      err+=( 'hist: error: $SAVEHIST is equal to 0' )
   (( HISTSIZE < 1.2 * SAVEHIST )) &&
-    print -l -u2 - 'hist: warning: $HISTSIZE should be at least 20% larger than $SAVEHIST'
+      print -l -u2 - 'hist: warning: $HISTSIZE should be at least 20% larger than $SAVEHIST'
 
   (( $#err[@] > 0 )) &&
-    print -l -u2 - $err[@]
+      print -l -u2 - $err[@]
   return $#err[@]
 }
 
@@ -39,7 +39,7 @@ typeset -gHA _HIST__ARGS=(
 
 .hist.yes() {
   [[ -v opts[-f] ]] &&
-    return 0
+      return 0
 
   print -nPr - "%B$1%b"
   read -q '? [y/n] '; local ret=$?
@@ -65,10 +65,10 @@ hist() {
   case $act in
     r)
       .hist.fcparams ||
-        return
+          return
 
       .hist.yes "Replace current history with contents of $HISTFILE?" &&
-        builtin fc -p $HISTFILE $HISTSIZE $SAVEHIST
+          builtin fc -p $HISTFILE $HISTSIZE $SAVEHIST
       return
       ;;
     u)
@@ -78,10 +78,10 @@ hist() {
         if (( ? == 0 )); then
           builtin fc -W
           [[ -v opts[-s] ]] ||
-            print 'Revert successful. Previous history restored.'
+              print 'Revert successful. Previous history restored.'
         else
           [[ -v opts[-s] ]] ||
-            print 'Unable to revert. No restore points available in this session.'
+              print 'Unable to revert. No restore points available in this session.'
         fi
         return ret
       fi
@@ -92,26 +92,26 @@ hist() {
   local -A entries=()
   local HISTORY_IGNORE
   [[ -z $sel ]] &&
-    sel=0
+      sel=0
   case $sel in
-    0)
+    ( 0 )
       local suffix=' #:hist:push-line:'
       HISTORY_IGNORE='*'$suffix
       entries=( "${(@kv)history[(R)$~HISTORY_IGNORE]%$suffix}" )
-      ;;
-    <1->)
+    ;;
+    ( <1-> )
       HISTORY_IGNORE=${(b)history[$sel]}
       entries[$sel]=$history[$sel]
-      ;;
-    -<1->)
+    ;;
+    ( -<1-> )
       sel=${${(@k)history}[-sel]}
       HISTORY_IGNORE=${(b)history[$sel]}
       entries[$sel]=$history[$sel]
       ;;
-    *)
+    ( * )
       HISTORY_IGNORE=$sel
       entries=( "${(@kv)history[(R)$~sel]}" )
-      ;;
+    ;;
   esac
 
   if [[ ! -v opts[-s] ]]; then
@@ -119,34 +119,34 @@ hist() {
     local MATCH k faint=$'\e[2m' reverse=$'\e[7m' none=$'\e[0m'
     for k in ${(@kn)entries}; do
       print -r - "$faint${(l:$#HISTCMD:)k}$none" \
-        "${entries[$k]//(#m)[^[:print:]]##/$reverse${${${(q+)MATCH}#$\'}%\'}$none}"
+          "${entries[$k]//(#m)[^[:print:]]##/$reverse${(V)MATCH}$none}"
     done
   fi
 
   if (( $#entries == 0 )); then
     [[ -v opts[-s] ]] ||
-      print "No ${${${sel:#0}:+matching history entries}:-pushed lines} found."
+        print "No ${${${sel:#0}:+matching history entries}:-pushed lines} found."
     return 1
   fi
 
   local single_plural="${#entries} entries"; (( $#entries == 1 )) &&
-    single_plural='1 entry'
+      single_plural='1 entry'
 
   if [[ $act != [gl] ]]; then
     .hist.fcparams ||
-      return
+        return
 
     local msg="Delete these $single_plural from history?"; [[ $act == e ]] &&
-      msg="Merge these $single_plural for editing?"
+        msg="Merge these $single_plural for editing?"
 
     if [[ $#entries -eq 1 && ! -v opts[-i] ]] || .hist.yes $msg; then
       builtin fc -W
       builtin fc -p $HISTFILE $HISTSIZE $SAVEHIST
       [[ $act != [en] && ! -v opts[-s] ]] &&
-        print "$single_plural deleted."
+          print "$single_plural deleted."
     else
       [[ -v opts[-s] ]] ||
-        print -l '' '0 entries deleted.'
+          print -l '' '0 entries deleted.'
       return 1
     fi
   fi
@@ -171,7 +171,7 @@ hist() {
           print -rs - "$new"
           builtin fc -W
           [[ -v opts[-s] ]] ||
-            print -l '' 'New entry saved.'
+              print -l '' 'New entry saved.'
         fi
       }
       ;;
@@ -183,11 +183,11 @@ hist() {
       local entry
       for k in ${(@kn)entries}; do
         .hist.format "$entries[$k]" &&
-          print -rs - "$REPLY"
+            print -rs - "$REPLY"
       done
       builtin fc -W
       [[ -v opts[-s] ]] ||
-        print "$single_plural reformatted."
+          print "$single_plural reformatted."
       ;;
   esac
 

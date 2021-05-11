@@ -1,43 +1,38 @@
 #!/bin/zsh
-emulate -L zsh; setopt extendedglob rcquotes warncreateglobal
+emulate -LR zsh; setopt extendedglob rcquotes warncreateglobal
 
 local k
-print -lr - \
-  'Usage:' \
-  '  hist [<option>...] <action> [<selection>]  ->  $reply' \
-  '' \
-  'Return value:' \
-  '  $reply  an associative array of history (index -> entry) tuples' \
-  '' \
-  'Options (can be combined):'
+print -Pr -- \
+'Usage:
+  %F{10}hist%f [%F{11}<option>...%f] <command> [<selection>] -> %F{14}$reply%f
+
+Return value:
+  %F{14}$reply%f  an associative array of history (index -> entry) tuples
+
+Options (can be combined):'
 for k in ${(ko@)_HIST__OPTS}; do
-  print -lr - "  $k  ${_HIST__OPTS[$k]}"
+  print -lPr - "  %F{11}$k%f  ${_HIST__OPTS[$k]}"
 done
-print -lr - \
-  'By default, hist asks for confirmation only when operating on multiple history entries.' \
-  '' \
-  'Actions (required; mutually exclusive):'
+print -r -- \
+'By default, hist asks for confirmation only when operating on multiple history
+entries.
+
+Commands (required; mutually exclusive):'
 for k in ${(ko@)_HIST__ARGS}; do
   print -lr - "  $k  ${_HIST__ARGS[$k]}"
 done
-print -lr - \
-  '' \
-  'Selection (required for some actions; mutually exclusive):' \
-  '  no arg        pushed lines' \
-  '  positive int  index from beginning of history' \
-  '  negative int  offset from end of history' \
-  '  string        pattern to match; can select multiple entries' \
-  '' \
-  '' \
-  '--Examples--' \
-  '' \
-  'Fix (cut from history; paste into command line) the last history item:' \
-  '  hist f -1' \
-  '' \
-  'List all command lines you''ve saved to history with the `push-line` widget' \
-  '  hist l' \
-  '' \
-  'Delete all history items ending with a newline or a semicolon:' \
-  "  hist d $'*(\n|;)'" \
-  ''
+print -Pr -- $'
+Selection (required for some actions; mutually exclusive):
+  no arguments  pushed lines
+  positive int  index from beginning of history
+  negative int  offset from end of history
+  string        pattern to match; can select multiple entries
 
+--Examples--
+Fix (cut from history; paste into command line) the last history item:
+  %F{10}hist%f f -1
+List all command lines you\'ve saved to history with the `push-line` widget
+  %F{10}hist%f l
+Delete all history items ending with a newline or a semicolon:
+  %F{10}hist%f d $\'*(\\n|;)\'
+'
