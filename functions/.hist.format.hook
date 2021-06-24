@@ -1,5 +1,7 @@
 #!/bin/zsh
 
+unset PREDISPLAY POSTDISPLAY
+
 [[ -o histignorespace && $BUFFER == ' '* ]] &&
     return 0
 
@@ -10,15 +12,16 @@ local REPLY
 if .hist.format $PREBUFFER$BUFFER; then
 
   if [[ -n $PREBUFFER ]]; then
-    zle .beep
-    zle .push-line-or-edit
+    print -z "$REPLY"
+    zle .send-break
   fi
 
   LBUFFER="$REPLY"
   RBUFFER=
-  unset PREDISPLAY POSTDISPLAY
-  [[ -v functions[_zsh_highlight] ]] &&
-      _zsh_highlight
-  zle -R
 fi
+
+unset PREDISPLAY POSTDISPLAY
+[[ -v functions[_zsh_highlight] ]] &&
+    _zsh_highlight
+zle -R
 return 0

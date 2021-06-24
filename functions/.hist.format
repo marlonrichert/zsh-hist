@@ -4,18 +4,21 @@ zmodload -F zsh/parameter p:functions
 .hist.format() {
   emulate -L zsh
   setopt extendedglob warncreateglobal
-  if zstyle -t :hist: expand-aliases; then
-    setopt aliases
-  else
-    setopt NO_aliases
-  fi
 
   REPLY="$1"
   {
+    setopt NO_aliases
     eval ".hist.tmp.() { $1 }" 2>/dev/null ||
         return
-    [[ ${${(Z+C+)1}:#\;} == ${${(Z+C+)functions[.hist.tmp.]}:#\;} ]] ||
+
+    [[ ${#${(Z+C+A)1}:#[;(]} == ${#${(Z+C+A)functions[.hist.tmp.]}:#[;(]} ]] ||
         return
+
+    if zstyle -t :hist: expand-aliases; then
+      setopt aliases
+      eval ".hist.tmp.() { $1 }" 2>/dev/null ||
+          return
+    fi
 
     REPLY=''
     local body=$'\n'"$functions[.hist.tmp.]"
