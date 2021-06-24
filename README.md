@@ -73,7 +73,7 @@ To get a list of all pushed lines in your history, just type `hist l`.
 ## `hist` command syntax
 ```
 Usage:
-  hist [<option>...] <action> [<selection>]  ->  $reply
+  hist [<option>...] <command> [<selection>] -> $reply
 
 Return value:
   $reply  an associative array of history (index -> entry) tuples
@@ -81,10 +81,12 @@ Return value:
 Options (can be combined):
   -f  force:       never ask for confirmation
   -i  interactive: always ask for confirmation
-  -s  silent:      do not print anything
-By default, hist asks for confirmation only when operating on multiple history entries.
+  -q  quiet:       do not print anything
+  -s  silent:      same as quiet
+By default, hist asks for confirmation only when operating on multiple history
+entries.
 
-Actions (required; mutually exclusive):
+Commands (required; mutually exclusive):
   d  delete:     remove from history
   e  edit:       remove from history, then modify & append as new
   f  fix:        remove from history, then load into buffer
@@ -95,22 +97,19 @@ Actions (required; mutually exclusive):
   u  undo:       roll back to before last action in same session
 
 Selection (required for some actions; mutually exclusive):
-  no arg        pushed lines
+  no arguments  pushed lines
   positive int  index from beginning of history
   negative int  offset from end of history
   string        pattern to match; can select multiple entries
 
-
 --Examples--
-
 Fix (cut from history; paste into command line) the last history item:
   hist f -1
-
-List all command lines youve saved to history with the `push-line` widget
+List all command lines you've saved to history with the `push-line` widget
   hist l
-
 Delete all history items ending with a newline or a semicolon:
   hist d $'*(\n|;)'
+
 ```
 
 ## Note about key bindings

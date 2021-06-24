@@ -2,7 +2,7 @@
 
 if [[ -z $_HIST__OPTS || -z $_HIST__ARGS ]]; then
   autoload -Uz hist
-  hist -fs l &> /dev/null
+  hist -fq l &> /dev/null
 fi
 
 local -a options=()

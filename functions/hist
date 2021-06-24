@@ -6,7 +6,8 @@ zmodload -F zsh/zutil b:zparseopts
 typeset -gHA _HIST__OPTS=(
     -f 'force:       never ask for confirmation'
     -i 'interactive: always ask for confirmation'
-    -s 'silent:      do not print anything'
+    -q 'quiet:       do not print anything'
+    -s 'silent:      same as quiet'
 )
 typeset -gHA _HIST__ARGS=(
     d  'delete:     remove from history'
@@ -42,7 +43,7 @@ typeset -gHA _HIST__ARGS=(
       return 0
 
   print -nPr - "%B$1%b"
-  read -q '? [y/n] '; local ret=$?
+  read -q '? [yn] '; local ret=$?
   print -l
   return ret
 }
@@ -53,10 +54,15 @@ hist() {
   local -A opts=()
   local REPLY
 
-  zparseopts -D -A opts f i s v
+  zparseopts -D -A opts f i q s v
+  if [[ -v opts[-s] ]]; then
+    opts[-q]=
+    unset 'opts[-s]'
+  fi
+
   local act=$1 sel=$2
 
-  if [[ $act != [${(kj::)_HIST__ARGS}] && ! -v opts[-s] ]]; then
+  if [[ $act != [${(kj::)_HIST__ARGS}] && ! -v opts[-q] ]]; then
     autoload -Uz .hist.help
     .hist.help
     return 1
@@ -77,10 +83,10 @@ hist() {
         local ret=$?
         if (( ? == 0 )); then
           builtin fc -W
-          [[ -v opts[-s] ]] ||
+          [[ -v opts[-q] ]] ||
               print 'Revert successful. Previous history restored.'
         else
-          [[ -v opts[-s] ]] ||
+          [[ -v opts[-q] ]] ||
               print 'Unable to revert. No restore points available in this session.'
         fi
         return ret
@@ -114,7 +120,7 @@ hist() {
     ;;
   esac
 
-  if [[ ! -v opts[-s] ]]; then
+  if [[ ! -v opts[-q] ]]; then
     local -i MBEGIN MEND
     local MATCH k faint=$'\e[2m' reverse=$'\e[7m' none=$'\e[0m'
     for k in ${(@kn)entries}; do
@@ -124,7 +130,7 @@ hist() {
   fi
 
   if (( $#entries == 0 )); then
-    [[ -v opts[-s] ]] ||
+    [[ -v opts[-q] ]] ||
         print "No ${${${sel:#0}:+matching history entries}:-pushed lines} found."
     return 1
   fi
@@ -142,10 +148,10 @@ hist() {
     if [[ $#entries -eq 1 && ! -v opts[-i] ]] || .hist.yes $msg; then
       builtin fc -W
       builtin fc -p $HISTFILE $HISTSIZE $SAVEHIST
-      [[ $act != [en] && ! -v opts[-s] ]] &&
+      [[ $act != [en] && ! -v opts[-q] ]] &&
           print "$single_plural deleted."
     else
-      [[ -v opts[-s] ]] ||
+      [[ -v opts[-q] ]] ||
           print -l '' '0 entries deleted.'
       return 1
     fi
@@ -170,7 +176,7 @@ hist() {
         else
           print -rs - "$new"
           builtin fc -W
-          [[ -v opts[-s] ]] ||
+          [[ -v opts[-q] ]] ||
               print -l '' 'New entry saved.'
         fi
       }
@@ -186,7 +192,7 @@ hist() {
             print -rs - "$REPLY"
       done
       builtin fc -W
-      [[ -v opts[-s] ]] ||
+      [[ -v opts[-q] ]] ||
           print "$single_plural reformatted."
       ;;
   esac
