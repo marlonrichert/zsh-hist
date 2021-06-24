@@ -5,9 +5,9 @@ local suffix=' #:hist:push-line:'
 local -a tuple=( "${(@kv)history[(r)*$suffix]}" )
 
 [[ -z $tuple ]] &&
-  return 1
+    return 1
 
-LBUFFER+=${${tuple[2]}%%$suffix}
+LBUFFER+="${${tuple[2]}%$suffix}"
 
 local -a reply=()
-hist -fs d $tuple[1]
+hist -fq d $tuple[1]
