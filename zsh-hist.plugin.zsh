@@ -1,5 +1,5 @@
 #!/bin/zsh
-() {
+zsh-hist() {
   emulate -L zsh -o extendedglob -o rcquotes -o noshortloops -o warncreateglobal
 
   local dir=${${(%):-%x}:A:h}
@@ -28,4 +28,10 @@
     add-zle-hook-widget line-finish .hist.format.hook
   }
   add-zsh-hook precmd :hist:precmd
+}
+
+{
+  zsh-hist "$@"
+} always {
+  unfunction zsh-hist
 }
