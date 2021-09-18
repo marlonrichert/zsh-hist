@@ -2,7 +2,7 @@
 zsh-hist() {
   emulate -L zsh -o extendedglob -o rcquotes -o noshortloops -o warncreateglobal
 
-  local dir=${${(%):-%x}:A:h}
+  local dir=${${(%):-%x}:P:h}
   local fdir=$dir/functions
   typeset -gU FPATH fpath=( $dir $fpath )
 
