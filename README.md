@@ -1,5 +1,5 @@
 # `zsh-hist`
-Edit your history in Zsh, without ever leaving the command line.
+Edit your Zsh history, without ever leaving the command line.
 
 * [Installation](#installation)
 * Features:
@@ -73,12 +73,12 @@ To get a list of all pushed lines in your history, just type `hist l`.
 ## `hist` command syntax
 ```
 Usage:
-  hist [<option>...] <command> [<selection>] -> $reply
+  hist [<option> ...] <command> [<selection> ...] -> $reply
 
 Return value:
   $reply  an associative array of history (index -> entry) tuples
 
-Options (can be combined):
+Options:
   -f  force:       never ask for confirmation
   -i  interactive: always ask for confirmation
   -q  quiet:       do not print anything
@@ -86,7 +86,7 @@ Options (can be combined):
 By default, hist asks for confirmation only when operating on multiple history
 entries.
 
-Commands (required; mutually exclusive):
+Commands:
   d  delete:     remove from history
   e  edit:       remove from history, then modify & append as new
   f  fix:        remove from history, then load into buffer
@@ -96,20 +96,21 @@ Commands (required; mutually exclusive):
   r  reload:     re-initialize local history from file
   u  undo:       roll back to before last action in same session
 
-Selection (required for some actions; mutually exclusive):
-  no arguments  pushed lines
+Selection (ignored for 'r' and 'u'):
+  empty         pushed lines
   positive int  index from beginning of history
   negative int  offset from end of history
-  string        pattern to match; can select multiple entries
+  pattern       all matching entries
 
 --Examples--
 Fix (cut from history; paste into command line) the last history item:
   hist f -1
-List all command lines you've saved to history with the `push-line` widget
-  hist l
+Normalize (uniformly format) a range of history items:
+  hist n {1..9}
 Delete all history items ending with a newline or a semicolon:
   hist d $'*(\n|;)'
-
+List all command lines you've saved to history with the `push-line` widget
+  hist l
 ```
 
 ## Note about key bindings

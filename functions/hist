@@ -60,7 +60,7 @@ hist() {
     unset 'opts[-s]'
   fi
 
-  local act=$1 sel=$2
+  local act=$1
 
   if [[ $act != [${(kj::)_HIST__ARGS}] && ! -v opts[-q] ]]; then
     autoload -Uz .hist.help
@@ -96,29 +96,34 @@ hist() {
   esac
 
   local -A entries=()
-  local HISTORY_IGNORE
-  [[ -z $sel ]] &&
-      sel=0
-  case $sel in
-    ( 0 )
-      local suffix=' #:hist:push-line:'
-      HISTORY_IGNORE='*'$suffix
-      entries=( "${(@kv)history[(R)$~HISTORY_IGNORE]%$suffix}" )
-    ;;
-    ( <1-> )
-      HISTORY_IGNORE=${(b)history[$sel]}
-      entries[$sel]=$history[$sel]
-    ;;
-    ( -<1-> )
-      sel=${${(@k)history}[-sel]}
-      HISTORY_IGNORE=${(b)history[$sel]}
-      entries[$sel]=$history[$sel]
-      ;;
-    ( * )
-      HISTORY_IGNORE=$sel
-      entries=( "${(@kv)history[(R)$~sel]}" )
-    ;;
-  esac
+  local -a ignore=()
+  local +h HISTORY_IGNORE=
+  shift
+  if (( $# )); then
+    local sel=
+    for sel do
+      case $sel in
+        ( <1-> )
+          ignore+=( "${(b)history[$sel]}" )
+          entries[$sel]=$history[$sel]
+        ;;
+        ( -<1-> )
+          sel=${${(@k)history}[-sel]}
+          ignore+=( "${(b)history[$sel]}" )
+          entries[$sel]=$history[$sel]
+          ;;
+        ( * )
+          ignore+=( "$sel" )
+          entries+=( "${(@kv)history[(R)$~sel]}" )
+        ;;
+      esac
+    done
+    HISTORY_IGNORE="(${(j:|:)ignore})"
+  else
+    local suffix=' #:hist:push-line:'
+    HISTORY_IGNORE='*'$suffix
+    entries=( "${(@kv)history[(R)$~HISTORY_IGNORE]%$suffix}" )
+  fi
 
   if [[ ! -v opts[-q] ]]; then
     local -i MBEGIN MEND
@@ -131,7 +136,7 @@ hist() {
 
   if (( $#entries == 0 )); then
     [[ -v opts[-q] ]] ||
-        print "No ${${${sel:#0}:+matching history entries}:-pushed lines} found."
+        print "No ${${*:+matching history entries}:-pushed lines} found."
     return 1
   fi
 
