@@ -4,12 +4,13 @@ zmodload -F zsh/parameter p:history
 zmodload -F zsh/zutil b:zparseopts
 
 typeset -gHA _HIST__OPTS=(
-    -f 'force:       never ask for confirmation'
+    -f 'force: never ask for confirmation'
     -i 'interactive: always ask for confirmation'
-    -q 'quiet:       do not print anything'
-    -s 'silent:      same as quiet'
+    -q 'quiet: do not print anything'
+    -s 'silent: same as quiet'
 )
 typeset -gHA _HIST__ARGS=(
+    compress  'delete each entry that differs <n> chars or less from the next'
     delete    'remove from history'
     edit      'delete, then modify & append as new'
     fix       'delete + get'
@@ -64,8 +65,10 @@ hist() {
 
   if [[ ( -z $act || -z $_HIST__ARGS[(I)$act*] ) && ! -v opts[-q] ]]; then
     autoload -Uz .hist.help
+    [[ -v 1 ]] &&
+        print -Pru2 -- "hist: %F{9}unknown subcommand ${(q+)act}%f"$'\n'
     .hist.help
-    [[ -z $act ]]
+    ! [[ -v 1 ]]
     return
   fi
 
@@ -99,9 +102,21 @@ hist() {
   local -A entries=()
   local -a ignore=()
   local +h HISTORY_IGNORE=
+  local sel=
   shift
-  if (( $# )); then
-    local sel=
+  if [[ $act == c* ]]; then
+    if [[ $1 != <-> ]]; then
+      print -Pru2 -- 'hist compress: %F{9}non-negative integer argument expected'
+      return 1
+    fi
+    for sel in ${(k)history}; do
+      if [[ $history[$sel] == (#a$1)$history[$(( sel + 1 ))] ]]; then
+        ignore+=( "${(b)history[$sel]}" )
+        entries[$sel]=$history[$sel]
+      fi
+    done
+    HISTORY_IGNORE="(${(j:|:)ignore})"
+  elif (( $# )); then
     for sel do
       case $sel in
         ( <1-> )
@@ -114,12 +129,13 @@ hist() {
           entries[$sel]=$history[$sel]
           ;;
         ( * )
-          ignore+=( "$sel" )
+          ignore+=( $~~sel )
           entries+=( "${(@kv)history[(R)$~sel]}" )
         ;;
       esac
     done
-    HISTORY_IGNORE="(${(j:|:)ignore})"
+    HISTORY_IGNORE=$ignore; (( $#ignore[@] > 1 )) &&
+        HISTORY_IGNORE="(${(j:|:)ignore})"
   else
     local suffix=' #:hist:push-line:'
     HISTORY_IGNORE='*'$suffix

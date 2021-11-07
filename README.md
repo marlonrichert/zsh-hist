@@ -72,45 +72,44 @@ To get a list of all pushed lines in your history, just type `hist l`.
 
 ## `hist` command syntax
 ```
-Usage:
-  hist [<option> ...] <command> [<selection> ...] -> $reply
+Usage
+  hist [<option>...] compress <n>
+  hist [<option>...] {reload|undo}
+  hist [<option>...] <command> [<selection> ...]
 
-Return value:
+Return value
   $reply  an associative array of history (index -> entry) tuples
 
-Options:
-  -f  force:       never ask for confirmation
+Options
+  -f  force: never ask for confirmation
   -i  interactive: always ask for confirmation
-  -q  quiet:       do not print anything
-  -s  silent:      same as quiet
+  -q  quiet: do not print anything
+  -s  silent: same as quiet
 By default, hist asks for confirmation only when operating on multiple history
 entries.
 
-Commands:
-  d  delete:     remove from history
-  e  edit:       remove from history, then modify & append as new
-  f  fix:        remove from history, then load into buffer
-  g  get:        load into buffer
-  l  list:       look, but do not touch
-  n  normalize:  remove from history, then format & append as new
-  r  reload:     re-initialize local history from file
-  u  undo:       roll back to before last action in same session
+Commands (can be shortened to first letter):
+  compress   delete each entry that differs <n> chars or less from the next
+  delete     remove from history
+  edit       delete, then modify & append as new
+  fix        delete + get
+  get        load into buffer
+  list       look, but do not touch
+  normalize  delete, then auto-format & append as new
+  reload     re-initialize local history from file
+  undo       roll back to before last command in same session
 
-Selection (ignored for 'r' and 'u'):
-  empty         pushed lines
+Selections (for commands other than compress, reload or undo):
+  no arg        pushed lines
   positive int  index from beginning of history
   negative int  offset from end of history
   pattern       all matching entries
 
---Examples--
-Fix (cut from history; paste into command line) the last history item:
-  hist f -1
-Normalize (uniformly format) a range of history items:
-  hist n {1..9}
-Delete all history items ending with a newline or a semicolon:
-  hist d $'*(\n|;)'
-List all command lines you've saved to history with the `push-line` widget
-  hist l
+Examples
+  hist f -1         # Fix last entry (cut from history; paste into command line)
+  hist n {1..9}     # Normalize (uniformly format) a range of history items
+  hist d $'*(\n|;)' # Delete all entries ending in newline or semicolon
+  hist l            # List all entries saved w/ `push-line` widget
 ```
 
 ## Note about key bindings

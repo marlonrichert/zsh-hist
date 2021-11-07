@@ -3,38 +3,36 @@ emulate -LR zsh; setopt extendedglob rcquotes warncreateglobal
 
 local k
 print -Pr -- \
-'Usage:
-  %F{10}hist%f [<%F{11}option%f> ...] <%F{10}command%f> [<selection> ...] -> $%F{14}reply%f
+$'%UUsage%u
+  %F{10}hist%f [<%F{11}option%f>...] %F{10}compress%f <n>
+  %F{10}hist%f [<%F{11}option%f>...] {%F{10}reload%f|%F{10}undo%f}
+  %F{10}hist%f [<%F{11}option%f>...] <%F{10}command%f> [<selection> ...]
 
-Return value:
+%UReturn value%u
   $%F{14}reply%f  an associative array of history (index -> entry) tuples
 
-Options:'
+%UOptions%u'
 for k in ${(ko@)_HIST__OPTS}; do
   print -lPr - "  %F{11}$k%f  ${_HIST__OPTS[$k]}"
 done
-print -r -- \
-'By default, hist asks for confirmation only when operating on multiple history
+print -Pr -- \
+'By default, %F{10}hist%f asks for confirmation only when operating on multiple history
 entries.
 
-Commands (can be shortened to first letter):'
+%UCommands%u (can be shortened to first letter):'
 for k in ${(ko@)_HIST__ARGS}; do
   print -lPr - "  %F{10}${(r:10:)k}%f ${_HIST__ARGS[$k]}"
 done
 print -Pr -- $'
-Selection (ignored for \'r\' and \'u\'):
-  empty         pushed lines
+%USelections%u (for commands other than %F{10}compress%f, %F{10}reload%f or %F{10}undo%f):
+  no arg        pushed lines
   positive int  index from beginning of history
   negative int  offset from end of history
   pattern       all matching entries
 
---Examples--
-Fix (cut from history; paste into command line) the last history item:
-  %F{10}hist f%f -1
-Normalize (uniformly format) a range of history items:
-  %F{10}hist n%f {1..9}
-Delete all history items ending with a newline or a semicolon:
-  %F{10}hist d%f $\'*(\\n|;)\'
-List all command lines you\'ve saved to history with the `push-line` widget
-  %F{10}hist l%f
+%UExamples%u
+  %F{10}hist f%f -1         %F{8}# Fix last entry (cut from history; paste into command line)%f
+  %F{10}hist n%f {1..9}     %F{8}# Normalize (uniformly format) a range of history items%f
+  %F{10}hist d%f $\'*(\\n|;)\' %F{8}# Delete all entries ending in newline or semicolon%f
+  %F{10}hist l%f            %F{8}# List all entries saved w/ `push-line` widget%f
 '
