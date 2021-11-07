@@ -17,9 +17,9 @@ print -r -- \
 'By default, hist asks for confirmation only when operating on multiple history
 entries.
 
-Commands:'
+Commands (can be shortened to first letter):'
 for k in ${(ko@)_HIST__ARGS}; do
-  print -lPr - "  %F{10}$k%f  ${_HIST__ARGS[$k]}"
+  print -lPr - "  %F{10}${(r:10:)k}%f ${_HIST__ARGS[$k]}"
 done
 print -Pr -- $'
 Selection (ignored for \'r\' and \'u\'):

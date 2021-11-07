@@ -10,14 +10,14 @@ typeset -gHA _HIST__OPTS=(
     -s 'silent:      same as quiet'
 )
 typeset -gHA _HIST__ARGS=(
-    d  'delete:     remove from history'
-    e  'edit:       remove from history, then modify & append as new'
-    f  'fix:        remove from history, then load into buffer'
-    g  'get:        load into buffer'
-    l  'list:       look, but do not touch'
-    n  'normalize:  remove from history, then format & append as new'
-    r  'reload:     re-initialize local history from file'
-    u  'undo:       roll back to before last action in same session'
+    delete    'remove from history'
+    edit      'delete, then modify & append as new'
+    fix       'delete + get'
+    get       'load into buffer'
+    list      'look, but do not touch'
+    normalize 'delete, then auto-format & append as new'
+    reload    're-initialize local history from file'
+    undo      'roll back to before last command in same session'
 )
 
 .hist.fcparams() {
@@ -62,14 +62,15 @@ hist() {
 
   local act=$1
 
-  if [[ $act != [${(kj::)_HIST__ARGS}] && ! -v opts[-q] ]]; then
+  if [[ ( -z $act || -z $_HIST__ARGS[(I)$act*] ) && ! -v opts[-q] ]]; then
     autoload -Uz .hist.help
     .hist.help
-    return 1
+    [[ -z $act ]]
+    return
   fi
 
   case $act in
-    r)
+    ( r* )
       .hist.fcparams ||
           return
 
@@ -77,7 +78,7 @@ hist() {
           builtin fc -p $HISTFILE $HISTSIZE $SAVEHIST
       return
       ;;
-    u)
+    ( u* )
       if .hist.yes "Revert last 'hist' action & all entries since then?"; then
         builtin fc -P
         local ret=$?
@@ -143,17 +144,17 @@ hist() {
   local single_plural="${#entries} entries"; (( $#entries == 1 )) &&
       single_plural='1 entry'
 
-  if [[ $act != [gl] ]]; then
+  if [[ $act != [gl]* ]]; then
     .hist.fcparams ||
         return
 
-    local msg="Delete these $single_plural from history?"; [[ $act == e ]] &&
+    local msg="Delete these $single_plural from history?"; [[ $act == e* ]] &&
         msg="Merge these $single_plural for editing?"
 
     if [[ $#entries -eq 1 && ! -v opts[-i] ]] || .hist.yes $msg; then
       builtin fc -W
       builtin fc -p $HISTFILE $HISTSIZE $SAVEHIST
-      [[ $act != [en] && ! -v opts[-q] ]] &&
+      [[ $act != [en]* && ! -v opts[-q] ]] &&
           print "$single_plural deleted."
     else
       [[ -v opts[-q] ]] ||
@@ -163,7 +164,7 @@ hist() {
   fi
 
   case $act in
-    e)
+    ( e* )
       local new=${(vF)entries}
       print "$faint${(l:COLUMNS::-:):-}$none"
       {
@@ -186,10 +187,10 @@ hist() {
         fi
       }
       ;;
-    [fg])
+    ( [fg]* )
       print -z ${(Fv)entries}
       ;;
-    n)
+    ( n* )
       local -a lines match mbegin mend
       local entry
       for k in ${(@kn)entries}; do
