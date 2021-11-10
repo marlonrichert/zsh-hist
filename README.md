@@ -73,7 +73,7 @@ To get a list of all pushed lines in your history, just type `hist l`.
 ## `hist` command syntax
 ```
 Usage
-  hist [<option>...] compress <n>
+  hist [<option>...] compress <delta>
   hist [<option>...] {reload|undo}
   hist [<option>...] <command> [<selection> ...]
 
@@ -89,7 +89,7 @@ By default, hist asks for confirmation only when operating on multiple history
 entries.
 
 Commands (can be shortened to first letter):
-  compress   delete each entry that differs <n> chars or less from the next
+  compress   delete each entry that differs <delta> chars or less from the next
   delete     remove from history
   edit       delete, then modify & append as new
   fix        delete + get

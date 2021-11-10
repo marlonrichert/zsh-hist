@@ -10,7 +10,7 @@ typeset -gHA _HIST__OPTS=(
     -s 'silent: same as quiet'
 )
 typeset -gHA _HIST__ARGS=(
-    compress  'delete each entry that differs <n> chars or less from the next'
+    compress  'delete each entry that differs <delta> chars or less from the next'
     delete    'remove from history'
     edit      'delete, then modify & append as new'
     fix       'delete + get'

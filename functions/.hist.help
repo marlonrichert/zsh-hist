@@ -4,7 +4,7 @@ emulate -LR zsh; setopt extendedglob rcquotes warncreateglobal
 local k
 print -Pr -- \
 $'%UUsage%u
-  %F{10}hist%f [<%F{11}option%f>...] %F{10}compress%f <n>
+  %F{10}hist%f [<%F{11}option%f>...] %F{10}compress%f <delta>
   %F{10}hist%f [<%F{11}option%f>...] {%F{10}reload%f|%F{10}undo%f}
   %F{10}hist%f [<%F{11}option%f>...] <%F{10}command%f> [<selection> ...]
 
