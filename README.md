@@ -27,6 +27,10 @@ To update, `cd` into your clone and `git pull`.
 Whenever you finish your command line, `zsh-hist` will automatically format it for you, before it
 is saved to history. You can also retroactively format your history with
 [`hist n`](#hist-command-syntax).
+You can also disable automatic history format with:
+```zsh
+zstyle ':hist:*' disable-format-hook yes
+```
 
 **Notes:**
 * For the formatting to be preserved completely when the command is saved history, you need to
