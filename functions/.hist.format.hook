@@ -1,5 +1,8 @@
 #!/bin/zsh
 
+zstyle -T :hist: auto-format ||
+  return 0
+
 unset PREDISPLAY POSTDISPLAY
 
 [[ -o histignorespace && $BUFFER == ' '* ]] &&

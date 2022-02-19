@@ -38,6 +38,10 @@ is saved to history. You can also retroactively format your history with
   users don't need to worry about this. However, if you are a purist and want that the formatting
   can _never_ change the way Zsh works, then please enable the [automatic alias
   expansion](#optional-automatic-alias-expansion) feature below.
+* To disable this feature, add the following to your `.zshrc` file:
+  ```zsh
+  zstyle ':hist:*' auto-format no
+  ```
 
 ## (Optional) Automatic alias expansion
 `zsh-hist` can automatically expand your aliases before each command line is saved to history.
