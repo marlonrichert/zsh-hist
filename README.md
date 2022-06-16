@@ -23,6 +23,14 @@ Edit your Zsh history, without ever leaving the command line.
 
 To update, `cd` into your clone and `git pull`.
 
+### Fig
+
+[Fig](https://fig.io) adds apps, shortcuts, and autocomplete to your existing terminal.
+
+Install `zsh-hist` in just one click.
+
+<a href="https://fig.io/plugins/other/zsh-hist_marlonrichert" target="_blank"><img src="https://fig.io/badges/install-with-fig.svg" /></a>
+
 ## Uniform code formatting
 Whenever you finish your command line, `zsh-hist` will automatically format it for you, before it
 is saved to history. You can also retroactively format your history with
