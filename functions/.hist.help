@@ -6,10 +6,10 @@ print -Pr -- \
 $'%UUsage%u
   %F{10}hist%f [<%F{11}option%f>...] %F{10}compress%f <delta>
   %F{10}hist%f [<%F{11}option%f>...] {%F{10}reload%f|%F{10}undo%f}
-  %F{10}hist%f [<%F{11}option%f>...] <%F{10}command%f> [<selection> ...]
+  %F{10}hist%f [<%F{11}option%f>...] <%F{10}command%f> <selection> ...
 
 %UReturn value%u
-  $%F{14}reply%f  an associative array of history (index -> entry) tuples
+  $%F{14}reply%f  an associative array of history index -> entry tuples
 
 %UOptions%u'
 for k in ${(ko@)_HIST__OPTS}; do
@@ -25,14 +25,12 @@ for k in ${(ko@)_HIST__ARGS}; do
 done
 print -Pr -- $'
 %USelections%u (for commands other than %F{10}compress%f, %F{10}reload%f or %F{10}undo%f):
-  no arg        pushed lines
-  positive int  index from beginning of history
   negative int  offset from end of history
+  positive int  index from beginning of history
   pattern       all matching entries
 
 %UExamples%u
   %F{10}hist f%f -1         %F{8}# Fix last entry (cut from history; paste into command line)%f
   %F{10}hist n%f {1..9}     %F{8}# Normalize (uniformly format) a range of history items%f
   %F{10}hist d%f $\'*(\\n|;)\' %F{8}# Delete all entries ending in newline or semicolon%f
-  %F{10}hist l%f            %F{8}# List all entries saved w/ `push-line` widget%f
 '

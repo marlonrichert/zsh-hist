@@ -9,11 +9,9 @@ zsh-hist() {
   # Work around https://github.com/zdharma/zinit/issues/441
   builtin autoload -Uz $fdir/hist $fdir/.hist.*~*.zwc
 
-  zle -N push-line .hist.push-line.widget
-  zle -N push-input .hist.push-line.widget
-  zle -N push-line-or-edit .hist.push-line.widget
-
-  zle -N get-line .hist.get-line.widget
+  unsetopt flowcontrol
+  bindkey '^Q' push-history
+  zle -N push-history .hist.push-history.widget
 
   zle -N undo .hist.undo.widget
 

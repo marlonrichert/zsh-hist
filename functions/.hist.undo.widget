@@ -10,7 +10,7 @@ if ! zle .undo && [[ -z $BUFFER && ZLE_RECURSIVE -eq 0 ]]; then
       UNDO_LIMIT_NO=$UNDO_CHANGE_NO
       ;;
     cont )
-      zle .push-line-or-edit
+      zle push-line-or-edit
       ;;
   esac
 fi

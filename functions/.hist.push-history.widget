@@ -2,12 +2,15 @@
 emulate -L zsh; setopt extendedglob warncreateglobal
 
 if [[ $CONTEXT == cont ]]; then
-  zle .$WIDGET
+  zle push-line-or-edit
 else
   if [[ $BUFFER == [[:IFS:]]# ]]; then
     BUFFER=''
     return 1
   fi
-  print -rs -- "$BUFFER #:hist:push-line:"
+
+  local REPLY=
+  .hist.format "$BUFFER"
+  print -rS -- "$REPLY"
   BUFFER=''
 fi

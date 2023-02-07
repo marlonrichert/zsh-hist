@@ -137,9 +137,8 @@ hist() {
     HISTORY_IGNORE=$ignore; (( $#ignore[@] > 1 )) &&
         HISTORY_IGNORE="(${(j:|:)ignore})"
   else
-    local suffix=' #:hist:push-line:'
-    HISTORY_IGNORE='*'$suffix
-    entries=( "${(@kv)history[(R)$~HISTORY_IGNORE]%$suffix}" )
+    print -l -u2 - 'hist: missing selection argument'
+    return 1
   fi
 
   if [[ ! -v opts[-q] ]]; then
@@ -153,7 +152,7 @@ hist() {
 
   if (( $#entries == 0 )); then
     [[ -v opts[-q] ]] ||
-        print "No ${${*:+matching history entries}:-pushed lines} found."
+        print "No matching history entries found."
     return 1
   fi
 
@@ -196,7 +195,7 @@ hist() {
             print -l - '' 'Deleted entries restored.'
           }
         else
-          print -rs - "$new"
+          print -rS - "$new"
           builtin fc -W
           [[ -v opts[-q] ]] ||
               print -l '' 'New entry saved.'
@@ -211,7 +210,7 @@ hist() {
       local entry
       for k in ${(@kn)entries}; do
         .hist.format "$entries[$k]" &&
-            print -rs - "$REPLY"
+            print -rS - "$REPLY"
       done
       builtin fc -W
       [[ -v opts[-q] ]] ||
