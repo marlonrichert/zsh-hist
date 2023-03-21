@@ -15,7 +15,7 @@ local REPLY
 if .hist.format $PREBUFFER$BUFFER; then
 
   if [[ -n $PREBUFFER ]]; then
-    print -z "$REPLY"
+    print -rz "$REPLY"
     zle .send-break
   fi
 
@@ -23,7 +23,6 @@ if .hist.format $PREBUFFER$BUFFER; then
   RBUFFER=
 fi
 
-unset PREDISPLAY POSTDISPLAY
 [[ -v functions[_zsh_highlight] ]] &&
     _zsh_highlight
 zle -R
