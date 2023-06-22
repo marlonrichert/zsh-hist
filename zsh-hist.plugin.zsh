@@ -1,4 +1,6 @@
 #!/bin/zsh
+unsetopt flowcontrol
+
 zsh-hist() {
   emulate -L zsh -o extendedglob -o rcquotes -o noshortloops -o warncreateglobal
 
@@ -9,7 +11,6 @@ zsh-hist() {
   # Work around https://github.com/zdharma/zinit/issues/441
   builtin autoload -Uz $fdir/hist $fdir/.hist.*~*.zwc
 
-  unsetopt flowcontrol
   bindkey '^Q' push-history
   zle -N push-history .hist.push-history.widget
 
