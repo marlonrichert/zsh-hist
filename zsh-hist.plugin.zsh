@@ -11,7 +11,9 @@ zsh-hist() {
   # Work around https://github.com/zdharma/zinit/issues/441
   builtin autoload -Uz $fdir/hist $fdir/.hist.*~*.zwc
 
-  bindkey '^Q' push-history
+  bindkey -M 'emacs' '^Q' push-history
+  bindkey -M 'viins' '^Q' push-history
+  bindkey -M 'vicmd' '^Q' push-history
   zle -N push-history .hist.push-history.widget
 
   zle -N undo .hist.undo.widget
