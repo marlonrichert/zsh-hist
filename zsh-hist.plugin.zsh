@@ -1,4 +1,5 @@
 #!/bin/zsh
+zstyle ':hist:*' load-hooks true
 unsetopt flowcontrol
 
 zsh-hist() {
@@ -25,8 +26,11 @@ zsh-hist() {
     unfunction $0
 
     autoload -Uz add-zle-hook-widget
-    add-zle-hook-widget line-init .hist.format.hook
-    add-zle-hook-widget line-finish .hist.format.hook
+    if zstyle -T ':hist:*' load-hooks; then
+        add-zle-hook-widget line-init .hist.format.hook
+        add-zle-hook-widget line-finish .hist.format.hook
+    fi
+
   }
   add-zsh-hook precmd :hist:precmd
 }
