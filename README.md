@@ -93,8 +93,5 @@ Examples
   hist d $'*(\n|;)' # Delete all entries ending in newline or semicolon
 ```
 
-## Author
-© 2020 [Marlon Richert](https://github.com/marlonrichert)
-
-## License
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+## Author & License
+See the [LICENSE](LICENSE) file.
