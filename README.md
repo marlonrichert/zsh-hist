@@ -10,9 +10,10 @@ Edit your Zsh history, without ever leaving the command line.
 
 To update, `cd` into your clone and `git pull`.
 
-## Uniform code formatting
-Whenever you finish your command line, `zsh-hist` will automatically format it for you, before it is saved to history.
-You can also retroactively format your history with [`hist n`](#hist-command-syntax).
+## Automatic code formatting
+Whenever you submit your command line, `zsh-hist` will automatically format it for you, before it is
+saved to history. You can also retroactively format your history with
+[`hist n`](#hist-command-syntax).
 
 ### Notes on code formatting
 * For the formatting to be preserved completely when the command is saved history, you need to
@@ -39,19 +40,13 @@ On any new command line, you can now press <kbd>Undo</kbd> to pop the last comma
 editor, letting you correct any mistakes you made, before running it back.  Afterwards, the old, faulty command will be
 gone from your history and only the new, corrected one remains.
 
-Additionally, if you make a typo and end up on the secondary prompt, you can now press <kbd>Undo</kbd> to return to the
-primary prompt.
+Additionally, if you accidentally end up on the secondary prompt, you can press <kbd>Undo</kbd> to
+return to the primary prompt.
 
 ## Push lines to history
-When you press <kbd>⌃</kbd><kbd>Q</kbd>, your line is now written to history (without being executed) instead of to the
-buffer stack.
-
-This has the following benefits:
-* A pushed line does not automatically get popped back into your line editor.
-* Pushed lines persist as long as they remain in your history and can be shared between multiple sessions.
-* Pushed lines can be accessed using conventional history search mechanisms.
-
-Pressing <kbd>⌃</kbd><kbd>Q</kbd> on the secondary prompt will return you to the primary prompt.
+When you press <kbd>Alt/Esc</kbd><kbd>Shift</kbd><kbd>Q</kbd>, your command line is moved to history
+without being executed and your history is written to `$HISTFILE`. If you press this on the
+secondary prompt, you will instead return to the primary prompt.
 
 ## `hist` command syntax
 ```
