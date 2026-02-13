@@ -53,7 +53,7 @@ hist() {
   emulate -L zsh -o extendedglob -o warncreateglobal
 
   local -A opts=()
-  local REPLY
+  local REPLY key
 
   zparseopts -D -A opts f i q s v
   if [[ -v opts[-s] ]]; then
@@ -143,10 +143,10 @@ hist() {
 
   if [[ ! -v opts[-q] ]]; then
     local -i MBEGIN MEND
-    local MATCH k faint=$'\e[2m' reverse=$'\e[7m' none=$'\e[0m'
-    for k in ${(@kn)entries}; do
-      print -r - "$faint${(l:$#HISTCMD:)k}$none" \
-          "${entries[$k]//(#m)[^[:print:]]##/$reverse${(V)MATCH}$none}"
+    local MATCH faint=$'\e[2m' reverse=$'\e[7m' none=$'\e[0m'
+    for key in ${(@kn)entries}; do
+      print -r - "$faint${(l:$#HISTCMD:)key}$none" \
+          "${entries[$key]//(#m)[^[:print:]]##/$reverse${(V)MATCH}$none}"
     done
   fi
 
@@ -163,8 +163,8 @@ hist() {
     .hist.fcparams ||
         return
 
-    local msg="Delete these $single_plural from history?"; [[ $act == e* ]] &&
-        msg="Merge these $single_plural for editing?"
+    local msg="Delete $single_plural from history?"; [[ $act == e* ]] &&
+        msg="Merge $single_plural for editing?"
 
     if [[ $#entries -eq 1 && ! -v opts[-i] ]] || .hist.yes $msg; then
       builtin fc -W
@@ -208,9 +208,11 @@ hist() {
     ( n* )
       local -a lines match mbegin mend
       local entry
-      for k in ${(@kn)entries}; do
-        .hist.format "$entries[$k]" &&
-            print -rS - "$REPLY"
+      for key in ${(@kn)entries}; do
+        entry=$entries[$key]
+        .hist.format "$entry" &&
+          entry="$REPLY"
+        print -rS - "$entry"
       done
       builtin fc -W
       [[ -v opts[-q] ]] ||
@@ -218,8 +220,7 @@ hist() {
       ;;
   esac
 
-  setopt NO_warncreateglobal
-  reply=( "${(@kv)entries}" )
+  typeset -ga reply=( "${(@kv)entries}" )
 }
 
 hist "$@"
