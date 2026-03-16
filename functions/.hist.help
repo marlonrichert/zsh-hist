@@ -24,7 +24,7 @@ for k in ${(ko@)_HIST__ARGS}; do
   print -lPr - "  %F{10}${(r:10:)k}%f ${_HIST__ARGS[$k]}"
 done
 print -Pr -- $'
-%USelections%u (for commands other than %F{10}compress%f, %F{10}reload%f or %F{10}undo%f):
+%USelections%u (for commands other than %F{10}compress%f, %F{10}reload%f, %F{10}shrink%f or %F{10}undo%f):
   negative int  offset from end of history
   positive int  index from beginning of history
   pattern       all matching entries
@@ -33,4 +33,6 @@ print -Pr -- $'
   %F{10}hist f%f -1         %F{8}# Fix last entry (cut from history; paste into command line)%f
   %F{10}hist n%f {1..9}     %F{8}# Normalize (uniformly format) a range of history items%f
   %F{10}hist d%f $\'*(\\n|;)\' %F{8}# Delete all entries ending in newline or semicolon%f
+  %F{10}hist s%f 20 5       %F{8}# Delete all similar entries longer than 20 characters with pattern matching delta of 5
+  %F{10}hist o%f 70         %F{8}# Delete entries with line breaks or length greater than 70 characters
 '

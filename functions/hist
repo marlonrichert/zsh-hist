@@ -13,6 +13,8 @@ typeset -gHA _HIST__ARGS=(
     compress  'delete each entry that differs <delta> chars or less from the next'
     delete    'remove from history'
     edit      'delete, then modify & append as new'
+    shrink    'consolidate similar entries over the entire history'
+    optimize  'delete entries longer that <maxlength> or any entries with multiple lines'
     fix       'delete + get'
     get       'load into buffer'
     list      'look, but do not touch'
@@ -102,9 +104,79 @@ hist() {
   local -A entries=()
   local -a ignore=()
   local +h HISTORY_IGNORE=
-  local sel=
+  local sel compsel newcomp
   shift
-  if [[ $act == c* ]]; then
+  if [[ $act == o* ]]; then
+
+    local length_check=${1:-0}
+
+    for sel in ${(k)history}; do
+      if [[ "$history[$sel]" == *$'\n'* ]]; then
+        ignore+=( "${(b)history[$sel]}" )
+        entries[$sel]=$history[$sel]
+      fi
+
+      if (( length_check > 0 && $#history[$sel] > length_check )); then
+        ignore+=( "${(b)history[$sel]}" )
+        entries[$sel]=$history[$sel]
+      fi
+
+      HISTORY_IGNORE=$ignore; (( $#ignore[@] > 1 )) &&
+          HISTORY_IGNORE="(${(j:|:)ignore})"
+    done
+
+  elif [[ $act == s* ]]; then
+
+    local -i MBEGIN MEND
+    local faint=$'\e[2m' reverse=$'\e[7m' none=$'\e[0m'
+
+    if [[ $1 != <-> || $2 != <-> ]]; then
+      print -Pru2 -- 'hist shrink: %F{9}two non-negative integer arguments expected'
+      return 1
+    fi
+
+    # Check if $2 is more than 50% of $1 or $2 is more than 8
+    if [[ ! -v opts[-q] ]] && (( $2 > $1 / 2 || $2 > 8 )); then
+      print -Pru2 -- "%F{11}Warning:%f The values you have entered for the shrink function (delta: $2, min length: $1) might cause the operation to take a significant amount of time due to extensive pattern matching. Do you still wish to continue?"
+
+      # Prompt the user for confirmation
+      if ! .hist.yes "Press y to continue, n to abort:"; then
+        print -Pru2 -- "Operation aborted by the user."
+        return 1
+      fi
+    fi
+
+    for ((sel=$HISTCMD; sel >= 1; sel--)); do
+
+      if [[ -z $history[$sel] ]] || [[ ${#history[$sel]} -lt $1 ]] || [[ -n ${entries[(r)$history[$sel]]} ]]; then
+        continue
+      fi
+
+      newcomp=1
+      for ((compsel=sel-1; compsel >= 1; compsel--)); do
+        if [[ $history[$sel] == (#a$2)$history[$compsel] ]]; then
+          if [[ $newcomp == 1 ]]; then
+            if [[ ! -v opts[-q] ]]; then
+              print -Pn "\n%F{10}    Keep Newest ${(l:$#HISTCMD:)sel}:%f "
+              print -r - "${history[$sel]//(#m)[^[:print:]]##/$reverse${(V)MATCH}$none}"
+            fi
+            newcomp=0
+          fi
+          if [[ ! -v opts[-q] ]]; then
+            print -Pn " %F{1}≈ Delete Older ${(l:$#HISTCMD:)compsel}:%f %F{244}"
+            print -rn - "${history[$compsel]//(#m)[^[:print:]]##/$reverse${(V)MATCH}$none}"
+            print -P "%f"
+          fi
+          ignore+=( "${(b)history[$compsel]}" )
+          entries[$compsel]=$history[$compsel]
+        fi
+      done
+    done
+
+    HISTORY_IGNORE=$ignore; (( $#ignore[@] > 1 )) &&
+        HISTORY_IGNORE="(${(j:|:)ignore})"
+
+  elif [[ $act == c* ]]; then
     if [[ $1 != <-> ]]; then
       print -Pru2 -- 'hist compress: %F{9}non-negative integer argument expected'
       return 1
